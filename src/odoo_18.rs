@@ -94,6 +94,27 @@ impl Odoo18JsonRPCClient {
         self.call("common".into(), "version".into(), Vec::<String>::new())
             .await
     }
+
+    pub async fn execute_0<O>(
+        &self,
+        model: String,
+        method: String,
+        additional_args: Vec<serde_json::Value>,
+    ) -> Result<O, crate::error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        let mut call_args: Vec<serde_json::Value> = vec![
+            self.database.clone().into(),
+            self.uid.ok_or(crate::error::Error::NotLoggedIn)?.into(),
+            self.password.clone().into(),
+            model.into(),
+            method.into(),
+        ];
+        call_args.extend(additional_args);
+        self.call("object".into(), "execute".into(), call_args)
+            .await
+    }
     pub async fn execute<P, O>(
         &self,
         model: String,
@@ -104,39 +125,7 @@ impl Odoo18JsonRPCClient {
         P: Serialize + Send,
         O: DeserializeOwned,
     {
-        let call_args: Vec<serde_json::Value> = vec![
-            self.database.clone().into(),
-            self.uid.ok_or(crate::error::Error::NotLoggedIn)?.into(),
-            self.password.clone().into(),
-            model.into(),
-            method.into(),
-            serde_json::to_value(args)?,
-        ];
-        self.call("object".into(), "execute".into(), call_args)
-            .await
-    }
-    pub async fn execute_1<P1, P2, O>(
-        &self,
-        model: String,
-        method: String,
-        args0: P1,
-        args1: P2,
-    ) -> Result<O, crate::error::Error>
-    where
-        P1: Serialize + Send,
-        P2: Serialize + Send,
-        O: DeserializeOwned,
-    {
-        let call_args: Vec<serde_json::Value> = vec![
-            self.database.clone().into(),
-            self.uid.ok_or(crate::error::Error::NotLoggedIn)?.into(),
-            self.password.clone().into(),
-            model.into(),
-            method.into(),
-            serde_json::to_value(args0)?,
-            serde_json::to_value(args1)?,
-        ];
-        self.call("object".into(), "execute".into(), call_args)
-            .await
+        let args: Vec<serde_json::Value> = vec![serde_json::to_value(args)?];
+        self.execute_0(model, method, args).await
     }
 }
