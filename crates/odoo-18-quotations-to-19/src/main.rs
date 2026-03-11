@@ -72,6 +72,12 @@ async fn main() -> anyhow::Result<()> {
             .await?;
         println!("{:#?}", a);
     }
+    println!(
+        "{:#?}",
+        client_18
+            .fields_get(Partner::NAME.into(), Default::default(), Default::default())
+            .await?
+    );
 
     Ok(())
 }

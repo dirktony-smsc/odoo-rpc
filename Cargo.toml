@@ -20,6 +20,6 @@ url = "2"
 odoo-rpc = { path = "./crates/odoo-rpc" }
 
 [workspace.package]
-author = ["Dirk Tony tony@smsconsulting-mg.com"]
+authors = ["Dirk Tony tony@smsconsulting-mg.com"]
 version = "0.1.0"
 edition = "2024"

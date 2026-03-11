@@ -1,5 +1,8 @@
 pub mod error;
+pub mod fields_get;
 pub mod version;
+
+use std::collections::HashMap;
 
 use jsonrpsee::{
     core::{client::ClientT, traits::ToRpcParams},
@@ -9,7 +12,10 @@ use serde::{Serialize, de::DeserializeOwned};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
-use crate::utils::{Domain, PaginationParam};
+use crate::{
+    jsonrpc::fields_get::FieldsGetAttributes,
+    utils::{Domain, PaginationParam},
+};
 
 #[derive(Debug)]
 pub struct Odoo18JsonRPCClient {
@@ -243,7 +249,25 @@ impl Odoo18JsonRPCClient {
         self.execute_0(O::NAME.into(), "read".into(), additional_args)
             .await
     }
-    // pub async fn field_get(&self, model: String, fields: Vec<String>, attributes: Vec<FieldGetAttributes>) -> Result<crate::>
+    pub async fn fields_get(
+        &self,
+        model: String,
+        fields: Vec<String>,
+        attributes: Vec<FieldsGetAttributes>,
+    ) -> Result<HashMap<String, HashMap<FieldsGetAttributes, String>>, error::Error> {
+        let mut additional_args = vec![serde_json::to_value(fields)?];
+        if !attributes.is_empty() {
+            additional_args.push(serde_json::to_value(attributes)?);
+        } else {
+            additional_args.push(serde_json::to_value(vec![
+                FieldsGetAttributes::String,
+                FieldsGetAttributes::Help,
+                FieldsGetAttributes::Type,
+            ])?);
+        }
+        self.execute_0(model, "fields_get".into(), additional_args)
+            .await
+    }
 }
 
 pub trait ModelName {
