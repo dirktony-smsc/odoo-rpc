@@ -2,6 +2,7 @@
 name = "odoo-18-quotations-to-19"
 version.workspace = true
 edition.workspace = true
+author.workspace = true
 
 [dependencies]
 odoo-rpc.workspace = true
