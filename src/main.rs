@@ -24,9 +24,10 @@ async fn main() -> anyhow::Result<()> {
     println!("version = {:#?}", client_18.version().await?);
 
     let a = client_18
-        .search(
+        .search_read::<serde_json::Value>(
             "res.partner".into(),
             vec![Domain::new("is_company", "=", true)],
+            Default::default(),
             PaginationParam {
                 offset: 0.into(),
                 limit: 10.into(),

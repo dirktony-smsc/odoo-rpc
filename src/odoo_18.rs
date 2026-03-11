@@ -5,6 +5,7 @@ use jsonrpsee::{
     http_client::HttpClient,
 };
 use serde::{Serialize, de::DeserializeOwned};
+use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
 use crate::utils::{Domain, PaginationParam};
@@ -130,6 +131,65 @@ impl Odoo18JsonRPCClient {
         }
         self.execute_0(model, "search".into(), args).await
     }
+    pub async fn search_read<O>(
+        &self,
+        model: String,
+        domains: Vec<Domain>,
+        fields: Vec<String>,
+        pagination: PaginationParam,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        let mut args: Vec<serde_json::Value> = vec![
+            serde_json::to_value(domains)?,
+            serde_json::to_value(fields)?,
+        ];
+        args.push(pagination.offset.unwrap_or_default().into());
+        if let Some(limit) = pagination.limit {
+            args.push(limit.into());
+        }
+        self.execute_0(model, "search_read".into(), args).await
+    }
+    pub async fn search_read_typed<O>(
+        &self,
+        model: String,
+        domains: Vec<Domain>,
+        pagination: PaginationParam,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned + FieldNamesAsSlice,
+    {
+        self.search_read(
+            model,
+            domains,
+            O::FIELD_NAMES_AS_SLICE
+                .iter()
+                .map(|s| String::from(*s))
+                .collect(),
+            pagination,
+        )
+        .await
+    }
+    pub async fn search_read_typed_1<O>(
+        &self,
+        domains: Vec<Domain>,
+        pagination: PaginationParam,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned + FieldNamesAsSlice + ModelName,
+    {
+        self.search_read(
+            O::NAME.into(),
+            domains,
+            O::FIELD_NAMES_AS_SLICE
+                .iter()
+                .map(|s| String::from(*s))
+                .collect(),
+            pagination,
+        )
+        .await
+    }
     pub async fn search_count(
         &self,
         model: String,
@@ -138,4 +198,8 @@ impl Odoo18JsonRPCClient {
         let args: Vec<serde_json::Value> = vec![serde_json::to_value(domains)?];
         self.execute_0(model, "search_count".into(), args).await
     }
+}
+
+pub trait ModelName {
+    const NAME: &'static str;
 }
