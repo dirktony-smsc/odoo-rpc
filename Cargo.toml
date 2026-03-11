@@ -1,20 +1,25 @@
-[package]
-name = "odoo-18-quotations-to-19"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["./crates/*"]
+default-members = ["./crates/odoo-18-quotations-to-19"]
+resolver = "3"
 
-[dependencies]
+[workspace.dependencies]
 anyhow = "1"
-ciborium = "0.2"
 dotenvy = "0.15"
-either = { version = "1.15.0", features = ["serde"] }
-env_logger = "0.11.9"
-fern = "0.7.1"
-jsonrpsee = { version = "0.26", features = ["http-client"] }
-log = "0.4.29"
-serde = { version = "1", features = ["derive"] }
+either = { version = "1.15" }
+env_logger = "0.11"
+fern = "0.7"
+jsonrpsee = { version = "0.26" }
+log = "0.4"
+serde = { version = "1" }
 serde_json = "1"
-struct-field-names-as-array = "0.3.0"
+struct-field-names-as-array = "0.3"
 thiserror = "2"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"] }
 url = "2"
+odoo-rpc = { path = "./crates/odoo-rpc" }
+
+[workspace.package]
+author = ["Dirk Tony tony@smsconsulting-mg.com"]
+version = "0.1.0"
+edition = "2024"

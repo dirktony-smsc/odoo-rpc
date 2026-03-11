@@ -1,0 +1,14 @@
+[package]
+name = "odoo-rpc"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+either = { workspace = true, features = ["serde"] }
+jsonrpsee = { workspace = true, features = ["http-client"] }
+log.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+struct-field-names-as-array.workspace = true
+thiserror.workspace = true
+url.workspace = true

@@ -1,4 +1,4 @@
-use odoo_18_quotations_to_19::{
+use odoo_rpc::{
     jsonrpc::{ModelName, Odoo18JsonRPCClient},
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
 };
