@@ -1,3 +1,3 @@
 pub mod error;
-pub mod odoo_18;
+pub mod jsonrpc;
 pub mod utils;

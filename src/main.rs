@@ -1,5 +1,5 @@
 use odoo_18_quotations_to_19::{
-    odoo_18::{ModelName, Odoo18JsonRPCClient},
+    jsonrpc::{ModelName, Odoo18JsonRPCClient},
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
 };
 use serde::Deserialize;
