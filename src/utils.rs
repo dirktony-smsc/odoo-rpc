@@ -1,4 +1,5 @@
-use serde::Serialize;
+use either::Either;
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Clone, Copy, Default, Serialize)]
 pub struct PaginationParam {
@@ -19,5 +20,17 @@ impl Domain {
         C: Into<serde_json::Value>,
     {
         Self(a.into(), b.into(), c.into())
+    }
+}
+
+pub fn deserialize_and_default_if_false<'de, D, T>(deserializer: D) -> Result<T, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de> + Default,
+{
+    let val: Either<bool, T> = either::serde_untagged::deserialize(deserializer)?;
+    match val {
+        Either::Left(_) => Ok(Default::default()),
+        Either::Right(t) => Ok(t),
     }
 }

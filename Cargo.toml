@@ -7,6 +7,7 @@ edition = "2024"
 anyhow = "1"
 ciborium = "0.2"
 dotenvy = "0.15"
+either = { version = "1.15.0", features = ["serde"] }
 env_logger = "0.11.9"
 fern = "0.7.1"
 jsonrpsee = { version = "0.26", features = ["http-client"] }
