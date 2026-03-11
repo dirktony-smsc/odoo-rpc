@@ -7,6 +7,8 @@ use jsonrpsee::{
 use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
+use crate::utils::{Domain, PaginationParam};
+
 #[derive(Debug)]
 pub struct Odoo18JsonRPCClient {
     password: String,
@@ -115,17 +117,18 @@ impl Odoo18JsonRPCClient {
         self.call("object".into(), "execute".into(), call_args)
             .await
     }
-    pub async fn execute<P, O>(
+    pub async fn search(
         &self,
         model: String,
-        method: String,
-        args: P,
-    ) -> Result<O, crate::error::Error>
-    where
-        P: Serialize + Send,
-        O: DeserializeOwned,
-    {
-        let args: Vec<serde_json::Value> = vec![serde_json::to_value(args)?];
-        self.execute_0(model, method, args).await
+        domains: Vec<Domain>,
+        pagination: PaginationParam,
+    ) -> Result<Vec<u64>, crate::error::Error>
+where {
+        let mut args: Vec<serde_json::Value> = vec![serde_json::to_value(domains)?];
+        args.push(pagination.offset.unwrap_or_default().into());
+        if let Some(limit) = pagination.limit {
+            args.push(limit.into());
+        }
+        self.execute_0(model, "search".into(), args).await
     }
 }

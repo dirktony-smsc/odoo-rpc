@@ -1,4 +1,7 @@
-use odoo_18_quotations_to_19::odoo_18::Odoo18JsonRPCClient;
+use odoo_18_quotations_to_19::{
+    odoo_18::Odoo18JsonRPCClient,
+    utils::{Domain, PaginationParam},
+};
 use std::env::var;
 use url::Url;
 
@@ -20,11 +23,14 @@ async fn main() -> anyhow::Result<()> {
     println!("uid = {:#?}", client_18.get_uid());
     println!("version = {:#?}", client_18.version().await?);
 
-    let a: serde_json::Value = client_18
-        .execute_0(
+    let a = client_18
+        .search(
             "res.partner".into(),
-            "search".into(),
-            vec![serde_json::json!([]), 1.into(), 10.into()],
+            vec![Domain::new("is_company", "=", true)],
+            PaginationParam {
+                offset: 0.into(),
+                limit: 10.into(),
+            },
         )
         .await?;
     println!("{:#?}", a);
