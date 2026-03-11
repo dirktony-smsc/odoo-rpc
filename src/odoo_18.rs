@@ -37,12 +37,16 @@ impl Odoo18JsonRPCClient {
     pub fn get_uid(&self) -> Option<u32> {
         self.uid
     }
-    pub async fn call<P: Serialize + Send, O: DeserializeOwned>(
+    pub async fn call<P, O>(
         &self,
         service: String,
         method: String,
         args: P,
-    ) -> Result<O, crate::error::Error> {
+    ) -> Result<O, crate::error::Error>
+    where
+        P: Serialize + Send,
+        O: DeserializeOwned,
+    {
         Ok(self
             .client
             .request(
@@ -88,6 +92,51 @@ impl Odoo18JsonRPCClient {
     }
     pub async fn version(&self) -> Result<version::Version, crate::error::Error> {
         self.call("common".into(), "version".into(), Vec::<String>::new())
+            .await
+    }
+    pub async fn execute<P, O>(
+        &self,
+        model: String,
+        method: String,
+        args: P,
+    ) -> Result<O, crate::error::Error>
+    where
+        P: Serialize + Send,
+        O: DeserializeOwned,
+    {
+        let call_args: Vec<serde_json::Value> = vec![
+            self.database.clone().into(),
+            self.uid.ok_or(crate::error::Error::NotLoggedIn)?.into(),
+            self.password.clone().into(),
+            model.into(),
+            method.into(),
+            serde_json::to_value(args)?,
+        ];
+        self.call("object".into(), "execute".into(), call_args)
+            .await
+    }
+    pub async fn execute_1<P1, P2, O>(
+        &self,
+        model: String,
+        method: String,
+        args0: P1,
+        args1: P2,
+    ) -> Result<O, crate::error::Error>
+    where
+        P1: Serialize + Send,
+        P2: Serialize + Send,
+        O: DeserializeOwned,
+    {
+        let call_args: Vec<serde_json::Value> = vec![
+            self.database.clone().into(),
+            self.uid.ok_or(crate::error::Error::NotLoggedIn)?.into(),
+            self.password.clone().into(),
+            model.into(),
+            method.into(),
+            serde_json::to_value(args0)?,
+            serde_json::to_value(args1)?,
+        ];
+        self.call("object".into(), "execute".into(), call_args)
             .await
     }
 }
