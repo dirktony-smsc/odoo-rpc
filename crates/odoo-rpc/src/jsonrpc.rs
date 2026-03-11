@@ -151,7 +151,7 @@ impl Odoo18JsonRPCClient {
         }
         self.execute_0(model, "search_read".into(), args).await
     }
-    pub async fn search_read_typed<O>(
+    pub async fn search_read_with_auto_field_names<O>(
         &self,
         model: String,
         domains: Vec<Domain>,
@@ -171,7 +171,7 @@ impl Odoo18JsonRPCClient {
         )
         .await
     }
-    pub async fn search_read_typed_1<O>(
+    pub async fn search_read_with_auto_model_name_and_field_names<O>(
         &self,
         domains: Vec<Domain>,
         pagination: PaginationParam,
@@ -197,6 +197,50 @@ impl Odoo18JsonRPCClient {
     ) -> Result<u64, crate::error::Error> {
         let args: Vec<serde_json::Value> = vec![serde_json::to_value(domains)?];
         self.execute_0(model, "search_count".into(), args).await
+    }
+    pub async fn read<O>(
+        &self,
+        model: String,
+        ids: Vec<u64>,
+        fields: Vec<String>,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        let mut additional_args = vec![serde_json::to_value(ids)?];
+        if !fields.is_empty() {
+            additional_args.push(serde_json::to_value(fields)?);
+        }
+        self.execute_0(model, "read".into(), additional_args).await
+    }
+    pub async fn read_with_auto_model_name<O>(
+        &self,
+        ids: Vec<u64>,
+        fields: Vec<String>,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned + ModelName,
+    {
+        let mut additional_args = vec![serde_json::to_value(ids)?];
+        if !fields.is_empty() {
+            additional_args.push(serde_json::to_value(fields)?);
+        }
+        self.execute_0(O::NAME.into(), "read".into(), additional_args)
+            .await
+    }
+    pub async fn read_with_auto_model_name_and_field_names<O>(
+        &self,
+        ids: Vec<u64>,
+    ) -> Result<Vec<O>, crate::error::Error>
+    where
+        O: DeserializeOwned + ModelName + FieldNamesAsSlice,
+    {
+        let mut additional_args = vec![serde_json::to_value(ids)?];
+        if !O::FIELD_NAMES_AS_SLICE.is_empty() {
+            additional_args.push(serde_json::to_value(O::FIELD_NAMES_AS_SLICE)?);
+        }
+        self.execute_0(O::NAME.into(), "read".into(), additional_args)
+            .await
     }
 }
 

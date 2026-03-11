@@ -37,23 +37,41 @@ async fn main() -> anyhow::Result<()> {
     println!("uid = {:#?}", client_18.get_uid());
     println!("version = {:#?}", client_18.version().await?);
 
-    let a = client_18
-        .search_read_typed_1::<Partner>(
-            vec![Domain::new("is_company", "=", true)],
-            PaginationParam {
-                offset: 0.into(),
-                limit: 10.into(),
-            },
-        )
-        .await?;
-    let count = client_18
-        .search_count(
-            "res.partner".into(),
-            vec![Domain::new("is_company", "=", true)],
-        )
-        .await?;
-    println!("count {count}");
-    println!("{:#?}", a);
+    {
+        let a = client_18
+            .search_read_with_auto_model_name_and_field_names::<Partner>(
+                vec![Domain::new("is_company", "=", true)],
+                PaginationParam {
+                    offset: 0.into(),
+                    limit: 10.into(),
+                },
+            )
+            .await?;
+        let count = client_18
+            .search_count(
+                "res.partner".into(),
+                vec![Domain::new("is_company", "=", true)],
+            )
+            .await?;
+        println!("count {count}");
+        println!("{:#?}", a);
+    }
+    {
+        let ids = client_18
+            .search(
+                Partner::NAME.into(),
+                vec![Domain::new("is_company", "=", true)],
+                PaginationParam {
+                    offset: 10.into(),
+                    limit: 20.into(),
+                },
+            )
+            .await?;
+        let a: Vec<Partner> = client_18
+            .read_with_auto_model_name_and_field_names(ids)
+            .await?;
+        println!("{:#?}", a);
+    }
 
     Ok(())
 }

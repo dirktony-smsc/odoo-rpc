@@ -689,6 +689,7 @@ dependencies = [
  "log",
  "odoo-rpc",
  "serde",
+ "serde_json",
  "struct-field-names-as-array",
  "tokio",
  "url",
