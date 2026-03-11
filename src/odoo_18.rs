@@ -122,8 +122,7 @@ impl Odoo18JsonRPCClient {
         model: String,
         domains: Vec<Domain>,
         pagination: PaginationParam,
-    ) -> Result<Vec<u64>, crate::error::Error>
-where {
+    ) -> Result<Vec<u64>, crate::error::Error> {
         let mut args: Vec<serde_json::Value> = vec![serde_json::to_value(domains)?];
         args.push(pagination.offset.unwrap_or_default().into());
         if let Some(limit) = pagination.limit {
