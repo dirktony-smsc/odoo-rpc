@@ -1,3 +1,5 @@
+pub mod version;
+
 use jsonrpsee::{
     core::{client::ClientT, traits::ToRpcParams},
     http_client::HttpClient,
@@ -11,7 +13,7 @@ pub struct Odoo18JsonRPCClient {
     user: String,
     database: String,
     client: HttpClient,
-    uid: String,
+    uid: Option<u32>,
 }
 
 #[derive(Debug, Serialize)]
@@ -32,12 +34,8 @@ where
 }
 
 impl Odoo18JsonRPCClient {
-    pub fn get_uid(&self) -> Option<&str> {
-        if self.uid.is_empty() {
-            None
-        } else {
-            Some(&self.uid)
-        }
+    pub fn get_uid(&self) -> Option<u32> {
+        self.uid
     }
     pub async fn call<P: Serialize + Send, O: DeserializeOwned>(
         &self,
@@ -58,7 +56,7 @@ impl Odoo18JsonRPCClient {
             .await?)
     }
     pub async fn login(&mut self) -> Result<(), crate::error::Error> {
-        let uid: String = self
+        let uid: u32 = self
             .call(
                 "common".into(),
                 "login".into(),
@@ -69,7 +67,7 @@ impl Odoo18JsonRPCClient {
                 ],
             )
             .await?;
-        self.uid = uid;
+        self.uid = Some(uid);
         Ok(())
     }
     pub async fn new(
@@ -87,5 +85,9 @@ impl Odoo18JsonRPCClient {
         };
         a.login().await?;
         Ok(a)
+    }
+    pub async fn version(&self) -> Result<version::Version, crate::error::Error> {
+        self.call("common".into(), "version".into(), Vec::<String>::new())
+            .await
     }
 }
