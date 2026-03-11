@@ -130,4 +130,12 @@ impl Odoo18JsonRPCClient {
         }
         self.execute_0(model, "search".into(), args).await
     }
+    pub async fn search_count(
+        &self,
+        model: String,
+        domains: Vec<Domain>,
+    ) -> Result<u64, crate::error::Error> {
+        let args: Vec<serde_json::Value> = vec![serde_json::to_value(domains)?];
+        self.execute_0(model, "search_count".into(), args).await
+    }
 }

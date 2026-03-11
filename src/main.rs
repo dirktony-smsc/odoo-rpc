@@ -33,6 +33,13 @@ async fn main() -> anyhow::Result<()> {
             },
         )
         .await?;
+    let count = client_18
+        .search_count(
+            "res.partner".into(),
+            vec![Domain::new("is_company", "=", true)],
+        )
+        .await?;
+    println!("count {count}");
     println!("{:#?}", a);
 
     Ok(())
