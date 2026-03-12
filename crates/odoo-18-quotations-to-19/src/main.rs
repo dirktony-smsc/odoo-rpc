@@ -1,5 +1,5 @@
 use odoo_rpc::{
-    jsonrpc::{ModelName, Odoo18JsonRPCClient},
+    ModelName, OdooJsonRPCClient,
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
 };
 use serde::Deserialize;
@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     log::info!("getting client...");
-    let client_18 = Odoo18JsonRPCClient::new(
+    let client_18 = OdooJsonRPCClient::new(
         Url::parse(var("ODOO_18_BASE_URL")?.as_str())?,
         var("ODOO_18_USER")?,
         var("ODOO_18_PASSWORD")?,

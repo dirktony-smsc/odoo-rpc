@@ -1,3 +1,6 @@
+pub mod fields_get;
+pub mod version;
+
 use either::Either;
 use serde::{Deserialize, Deserializer, Serialize};
 

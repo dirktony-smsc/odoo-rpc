@@ -1,7 +1,3 @@
-pub mod error;
-pub mod fields_get;
-pub mod version;
-
 use std::collections::HashMap;
 
 use jsonrpsee::{
@@ -12,13 +8,16 @@ use serde::{Serialize, de::DeserializeOwned};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
+use crate::error;
+
 use crate::{
-    jsonrpc::fields_get::FieldsGetAttributes,
+    ModelName,
     utils::{Domain, PaginationParam},
+    utils::{fields_get::FieldsGetAttributes, version},
 };
 
 #[derive(Debug)]
-pub struct Odoo18JsonRPCClient {
+pub struct OdooJsonRPCClient {
     password: String,
     user: String,
     database: String,
@@ -27,13 +26,13 @@ pub struct Odoo18JsonRPCClient {
 }
 
 #[derive(Debug, Serialize)]
-struct Odoo18JsonRpcBaseArgs<T> {
+struct OdooJsonRpcBaseArgs<T> {
     service: String,
     method: String,
     args: T,
 }
 
-impl<T> ToRpcParams for Odoo18JsonRpcBaseArgs<T>
+impl<T> ToRpcParams for OdooJsonRpcBaseArgs<T>
 where
     T: Serialize,
 {
@@ -43,7 +42,7 @@ where
     }
 }
 
-impl Odoo18JsonRPCClient {
+impl OdooJsonRPCClient {
     pub fn get_uid(&self) -> Option<u32> {
         self.uid
     }
@@ -61,7 +60,7 @@ impl Odoo18JsonRPCClient {
             .client
             .request(
                 "call",
-                Odoo18JsonRpcBaseArgs {
+                OdooJsonRpcBaseArgs {
                     service,
                     method,
                     args,
@@ -268,8 +267,4 @@ impl Odoo18JsonRPCClient {
         self.execute_0(model, "fields_get".into(), additional_args)
             .await
     }
-}
-
-pub trait ModelName {
-    const NAME: &'static str;
 }
