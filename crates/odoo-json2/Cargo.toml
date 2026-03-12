@@ -1,0 +1,12 @@
+[package]
+name = "odoo-json2"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+reqwest = { workspace = true, features = ["json"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = {workspace = true }
+url = { workspace = true }
