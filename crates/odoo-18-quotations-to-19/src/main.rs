@@ -3,7 +3,7 @@ use odoo_rpc::{
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
 };
 use serde::{Deserialize, Serialize};
-use std::env::var;
+use std::{env::var, fs};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
@@ -19,15 +19,15 @@ use url::Url;
 //     const NAME: &'static str = "res.partner";
 // }
 
-#[derive(Debug, Serialize)]
-struct TodoTask {
-    color: u8,
-    name: String,
-}
+// #[derive(Debug, Serialize)]
+// struct TodoTask {
+//     color: u8,
+//     name: String,
+// }
 
-impl ModelName for TodoTask {
-    const NAME: &'static str = "project.task";
-}
+// impl ModelName for TodoTask {
+//     const NAME: &'static str = "project.task";
+// }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -88,18 +88,30 @@ async fn main() -> anyhow::Result<()> {
     //         .fields_get(Partner::NAME.into(), Default::default(), Default::default())
     //         .await?
     // );
-    let res = client_18
-        .create_with_auto_module_name(vec![
-            TodoTask {
-                color: 8,
-                name: "Hello from tony odoo-rpc-rs again".into(),
-            },
-            TodoTask {
-                color: 2,
-                name: "Just a seccond thing ....".into(),
-            },
-        ])
+
+    // let res = client_18
+    //     .create_with_auto_module_name(vec![
+    //         TodoTask {
+    //             color: 8,
+    //             name: "Hello from tony odoo-rpc-rs again".into(),
+    //         },
+    //         TodoTask {
+    //             color: 2,
+    //             name: "Just a seccond thing ....".into(),
+    //         },
+    //     ])
+    //     .await?;
+    // println!("{:#?}", res);
+
+    client_18
+        .update(
+            "project.task".into(),
+            648,
+            serde_json::json!({
+                "description": fs::read_to_string("./lorem.html")?
+            }),
+        )
         .await?;
-    println!("{:#?}", res);
+
     Ok(())
 }
