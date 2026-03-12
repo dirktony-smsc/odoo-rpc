@@ -41,6 +41,15 @@ where
 #[derive(Debug, Clone)]
 pub(crate) struct NumOrVec<T>(pub Either<T, Vec<T>>);
 
+impl<T> From<NumOrVec<T>> for Vec<T> {
+    fn from(value: NumOrVec<T>) -> Self {
+        match value.0 {
+            Either::Left(v) => vec![v],
+            Either::Right(vs) => vs,
+        }
+    }
+}
+
 impl<T> Serialize for NumOrVec<T>
 where
     T: Serialize,
