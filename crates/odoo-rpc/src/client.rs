@@ -8,7 +8,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
-use crate::error;
+use crate::{error, utils::NumOrVec};
 
 use crate::{
     ModelName,
@@ -266,5 +266,25 @@ impl OdooJsonRPCClient {
         }
         self.execute_0(model, "fields_get".into(), additional_args)
             .await
+    }
+    pub async fn create<T>(&self, model: String, values: Vec<T>) -> Result<Vec<u64>, error::Error>
+    where
+        T: Serialize,
+    {
+        let additional_args = vec![serde_json::to_value(values)?];
+
+        let res: NumOrVec<u64> = self
+            .execute_0(model, "create".into(), additional_args)
+            .await?;
+        Ok(res.into())
+    }
+    pub async fn create_with_auto_module_name<T>(
+        &self,
+        values: Vec<T>,
+    ) -> Result<Vec<u64>, error::Error>
+    where
+        T: Serialize + ModelName,
+    {
+        self.create(T::NAME.into(), values).await
     }
 }
