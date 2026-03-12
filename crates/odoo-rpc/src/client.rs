@@ -304,4 +304,9 @@ impl OdooJsonRPCClient {
     {
         self.update(T::NAME.into(), id, value).await
     }
+    pub async fn unlink(&self, model: String, ids: Vec<u64>) -> Result<bool, error::Error> {
+        let additional_args: Vec<serde_json::Value> = vec![serde_json::to_value(ids)?];
+        self.execute_0(model, "unlink".into(), additional_args)
+            .await
+    }
 }
