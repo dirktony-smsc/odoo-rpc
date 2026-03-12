@@ -103,14 +103,18 @@ async fn main() -> anyhow::Result<()> {
     //     .await?;
     // println!("{:#?}", res);
 
+    // client_18
+    //     .update(
+    //         "project.task".into(),
+    //         648,
+    //         serde_json::json!({
+    //             "description": fs::read_to_string("./lorem.html")?
+    //         }),
+    //     )
+    //     .await?;
+
     client_18
-        .update(
-            "project.task".into(),
-            648,
-            serde_json::json!({
-                "description": fs::read_to_string("./lorem.html")?
-            }),
-        )
+        .unlink("project.task".into(), vec![647, 648])
         .await?;
 
     Ok(())
