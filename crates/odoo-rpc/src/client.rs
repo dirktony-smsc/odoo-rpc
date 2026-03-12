@@ -287,4 +287,21 @@ impl OdooJsonRPCClient {
     {
         self.create(T::NAME.into(), values).await
     }
+    pub async fn update<T>(&self, model: String, id: u64, value: T) -> Result<bool, error::Error>
+    where
+        T: Serialize,
+    {
+        let additional_args: Vec<serde_json::Value> = vec![id.into(), serde_json::to_value(value)?];
+        self.execute_0(model, "write".into(), additional_args).await
+    }
+    pub async fn update_with_auto_model_name<T>(
+        &self,
+        id: u64,
+        value: T,
+    ) -> Result<bool, error::Error>
+    where
+        T: Serialize + ModelName,
+    {
+        self.update(T::NAME.into(), id, value).await
+    }
 }
