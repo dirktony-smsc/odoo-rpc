@@ -37,3 +37,30 @@ where
         Either::Right(t) => Ok(t),
     }
 }
+
+#[derive(Debug, Clone)]
+pub(crate) struct NumOrVec<T>(pub Either<T, Vec<T>>);
+
+impl<T> Serialize for NumOrVec<T>
+where
+    T: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        either::serde_untagged::serialize(&self.0, serializer)
+    }
+}
+
+impl<'de, T> Deserialize<'de> for NumOrVec<T>
+where
+    T: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        Ok(Self(either::serde_untagged::deserialize(deserializer)?))
+    }
+}
