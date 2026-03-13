@@ -722,6 +722,7 @@ dependencies = [
  "dotenvy",
  "env_logger",
  "log",
+ "odoo-json2",
  "odoo-rpc",
  "serde",
  "serde_json",

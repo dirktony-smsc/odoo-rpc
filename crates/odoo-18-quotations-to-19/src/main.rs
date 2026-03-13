@@ -34,15 +34,15 @@ async fn main() -> anyhow::Result<()> {
     let _ = dotenvy::dotenv();
     env_logger::init();
 
-    log::info!("getting client...");
-    let client_18 = OdooJsonRPCClient::new(
-        Url::parse(var("ODOO_18_BASE_URL")?.as_str())?,
-        var("ODOO_18_USER")?,
-        var("ODOO_18_PASSWORD")?,
-        var("ODOO_18_DATABASE")?,
-    )
-    .await?;
-    log::info!("client got!");
+    // log::info!("getting client...");
+    // let client_18 = OdooJsonRPCClient::new(
+    //     Url::parse(var("ODOO_18_BASE_URL")?.as_str())?,
+    //     var("ODOO_18_USER")?,
+    //     var("ODOO_18_PASSWORD")?,
+    //     var("ODOO_18_DATABASE")?,
+    // )
+    // .await?;
+    // log::info!("client got!");
 
     // println!("uid = {:#?}", client_18.get_uid());
     // println!("version = {:#?}", client_18.version().await?);
@@ -109,13 +109,21 @@ async fn main() -> anyhow::Result<()> {
     //         648,
     //         serde_json::json!({
     //             "description": fs::read_to_string("./lorem.html")?
-    //         }),
+    //         })
     //     )
     //     .await?;
 
-    client_18
-        .unlink("project.task".into(), vec![647, 648])
-        .await?;
+    // client_18
+    //     .unlink("project.task".into(), vec![647, 648])
+    //     .await?;
+
+    {
+        let client_19 = odoo_json2::OdooJson2Client::builder()
+            .api_key(var("ODOO_19_TEST_API_KEY")?)
+            .base_url(Url::parse("http://localhost:8069")?)
+            .build()?;
+        println!("{:#?}", client_19.version().await?);
+    }
 
     Ok(())
 }

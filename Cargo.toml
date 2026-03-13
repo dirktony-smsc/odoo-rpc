@@ -19,6 +19,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"
 url = "2"
 odoo-rpc = { path = "./crates/odoo-rpc" }
 reqwest = { version = "0.13", default-features = false }
+odoo-json2 = { path = "./crates/odoo-json2" }
 
 [workspace.package]
 authors = ["Dirk Tony tony@smsconsulting-mg.com"]
