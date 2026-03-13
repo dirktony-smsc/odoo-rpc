@@ -2,8 +2,9 @@ use std::sync::{LazyLock, OnceLock};
 
 use reqwest::{
     Client, ClientBuilder, Method, Request, RequestBuilder,
-    header::{HOST, USER_AGENT},
+    header::{CONTENT_TYPE, HOST, HeaderValue, USER_AGENT},
 };
+use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
 use crate::error;
@@ -105,6 +106,7 @@ impl OdooJson2Client {
         );
         Ok(req)
     }
+
     /// REF: https://www.odoo.com/documentation/19.0/developer/reference/external_api.html#common-service
     pub async fn version(&self) -> Result<crate::version::OdooVersion, crate::error::Error> {
         Ok(self
@@ -114,5 +116,42 @@ impl OdooJson2Client {
             .error_for_status()?
             .json()
             .await?)
+    }
+    pub async fn call_model_method<I, O>(
+        &self,
+        model: &str,
+        method: &str,
+        input: I,
+    ) -> Result<O, crate::error::Error>
+    where
+        I: Serialize,
+        O: DeserializeOwned,
+    {
+        let mut req_build = self
+            .make_basic_request(Method::POST, &format!("/json/2/{model}/{method}"))?
+            .bearer_auth(self.api_key.as_ref().ok_or(error::Error::MissingApiKey)?);
+        if let Some(db) = self.database.as_ref() {
+            req_build = req_build.header("x-odoo-database", db);
+        }
+        let res = req_build.json(&input).send().await?;
+        if res.status().is_client_error() || res.status().is_server_error() {
+            match res
+                .headers()
+                .get(CONTENT_TYPE)
+                .as_ref()
+                .and_then(|v| v.to_str().ok())
+            {
+                Some("application/json") => {
+                    let er: error::ModelMethodCallError = res.json().await?;
+                    Err(er.into())
+                }
+                _ => {
+                    let status = res.status().as_u16();
+                    Err(error::Error::AbstractRequest(status, res.text().await?))
+                }
+            }
+        } else {
+            Ok(res.json().await?)
+        }
     }
 }
