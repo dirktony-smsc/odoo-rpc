@@ -3,6 +3,7 @@ use odoo_rpc::{
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
 };
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::{env::var, fs};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
@@ -123,6 +124,18 @@ async fn main() -> anyhow::Result<()> {
             .base_url(Url::parse("http://localhost:8069")?)
             .build()?;
         println!("{:#?}", client_19.version().await?);
+        let partners: serde_json::Value = client_19
+            .call_model_method(
+                "res.partner",
+                "search_read",
+                json!({
+                    "context": {},
+                    "domain": [],
+                    "fields": ["name"]
+                }),
+            )
+            .await?;
+        println!("{:#?}", partners);
     }
 
     Ok(())
