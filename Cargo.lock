@@ -735,6 +735,7 @@ dependencies = [
 name = "odoo-json2"
 version = "0.1.0"
 dependencies = [
+ "either",
  "reqwest",
  "serde",
  "serde_json",
