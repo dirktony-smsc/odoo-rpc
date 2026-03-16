@@ -148,22 +148,6 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
         println!("{:#?}", partners);
-        println!(
-            "{:#?}",
-            client_19
-                .copy(
-                    "res.partner".into(),
-                    CopyParam {
-                        ids: [1708, 1707].into(),
-                        context: None,
-                        default: json!({
-                            "email": "tony-not-real@someemail.com"
-                        })
-                        .into(),
-                    },
-                )
-                .await?
-        )
     }
 
     Ok(())
