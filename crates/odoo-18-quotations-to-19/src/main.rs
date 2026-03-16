@@ -1,12 +1,12 @@
 use odoo_api_commons::*;
-use odoo_json2::base_methods::{
-    action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
-    create::CreateParam, export_data::ExportDataParam, field_get::FieldsGetParam, read::ReadParam,
-    search::SearchParam, search_read::SearchReadParam, write::WriteParam,
-};
-use odoo_rpc::{ModelName, OdooJsonRPCClient};
+// use odoo_json2::base_methods::{
+//     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
+//     create::CreateParam, export_data::ExportDataParam, field_get::FieldsGetParam, read::ReadParam,
+//     search::SearchParam, search_read::SearchReadParam, write::WriteParam,
+// };
+// use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+// use serde_json::json;
 use std::{env::var, fs, vec};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
@@ -143,57 +143,59 @@ async fn main() -> anyhow::Result<()> {
             .api_key(var("ODOO_19_TEST_API_KEY")?)
             .base_url(Url::parse("http://localhost:8069")?)
             .build()?;
-        println!("{:#?}", client_19.version().await?);
-        println!(
-            "{:#?}",
-            client_19
-                .export_data(
-                    "res.partner".into(),
-                    ExportDataParam {
-                        ids: client_19
-                            .search(
-                                "res.partner".into(),
-                                SearchParam {
-                                    pagination: PaginationParam {
-                                        limit: 10.into(),
-                                        ..Default::default()
-                                    }
-                                    .into(),
-                                    ..Default::default()
-                                },
-                            )
-                            .await?,
-                        fields_to_export: vec![
-                            "name".into(),
-                            "create_date".into(),
-                            "phone".into(),
-                            "email".into()
-                        ],
-                        context: None,
-                    },
-                )
-                .await?
-        );
 
-        println!(
-            "{:#?}",
-            client_19
-                .fields_get::<FieldGetOut>(
-                    "res.partner".into(),
-                    FieldsGetParam {
-                        attributes: Some({
-                            let mut fields = FieldGetOut::FIELD_NAMES_AS_SLICE
-                                .iter()
-                                .map(|s| (**s).into())
-                                .collect::<Vec<String>>();
-                            fields.push("type".into());
-                            fields
-                        }),
-                        ..Default::default()
-                    }
-                )
-                .await?
-        )
+        // println!("{:#?}", client_19.version().await?);
+        // println!(
+        //     "{:#?}",
+        //     client_19
+        //         .export_data(
+        //             "res.partner".into(),
+        //             ExportDataParam {
+        //                 ids: client_19
+        //                     .search(
+        //                         "res.partner".into(),
+        //                         SearchParam {
+        //                             pagination: PaginationParam {
+        //                                 limit: 10.into(),
+        //                                 ..Default::default()
+        //                             }
+        //                             .into(),
+        //                             ..Default::default()
+        //                         },
+        //                     )
+        //                     .await?,
+        //                 fields_to_export: vec![
+        //                     "name".into(),
+        //                     "create_date".into(),
+        //                     "phone".into(),
+        //                     "email".into()
+        //                 ],
+        //                 context: None,
+        //             },
+        //         )
+        //         .await?
+        // );
+
+        // println!(
+        //     "{:#?}",
+        //     client_19
+        //         .fields_get::<FieldGetOut>(
+        //             "res.partner".into(),
+        //             FieldsGetParam {
+        //                 attributes: Some({
+        //                     let mut fields = FieldGetOut::FIELD_NAMES_AS_SLICE
+        //                         .iter()
+        //                         .map(|s| (**s).into())
+        //                         .collect::<Vec<String>>();
+        //                     fields.push("type".into());
+        //                     fields
+        //                 }),
+        //                 ..Default::default()
+        //             }
+        //         )
+        //         .await?
+        // )
+        println!("{}", client_19.get_base_url("res.partner".into()).await?)
     }
 
     Ok(())

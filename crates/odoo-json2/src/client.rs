@@ -286,4 +286,7 @@ impl OdooJson2Client {
     {
         self.call_model_method(&model, "fields_get", param).await
     }
+    pub async fn get_base_url(&self, model: String) -> Result<String, error::Error> {
+        self.call_model_method(&model, "get_base_url", ()).await
+    }
 }
