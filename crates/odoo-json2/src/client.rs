@@ -9,10 +9,19 @@ use url::Url;
 
 use crate::{
     base_methods::{
-        action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam,
-        copy::CopyParam, copy_data::CopyDataParam, copy_translations::CopyTranslationsParam,
-        create::CreateParam, default_get::DefaultGetParam, read::ReadParam, search::SearchParam,
-        search_read::SearchReadParam, unlink::UnlinkParam, write::WriteParam,
+        action_archive::ActionArchiveParam,
+        action_unarchive::ActionUnarchiveParam,
+        copy::CopyParam,
+        copy_data::CopyDataParam,
+        copy_translations::CopyTranslationsParam,
+        create::CreateParam,
+        default_get::DefaultGetParam,
+        export_data::{ExportDataOutput, ExportDataParam},
+        read::ReadParam,
+        search::SearchParam,
+        search_read::SearchReadParam,
+        unlink::UnlinkParam,
+        write::WriteParam,
     },
     error,
 };
@@ -258,5 +267,12 @@ impl OdooJson2Client {
         param: DefaultGetParam,
     ) -> Result<HashMap<String, serde_json::Value>, error::Error> {
         self.call_model_method(&model, "default_get", param).await
+    }
+    pub async fn export_data(
+        &self,
+        model: String,
+        param: ExportDataParam,
+    ) -> Result<ExportDataOutput, error::Error> {
+        self.call_model_method(&model, "export_data", param).await
     }
 }

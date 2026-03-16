@@ -1,13 +1,13 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
-    create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
-    write::WriteParam,
+    create::CreateParam, export_data::ExportDataParam, read::ReadParam, search::SearchParam,
+    search_read::SearchReadParam, write::WriteParam,
 };
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{env::var, fs};
+use std::{env::var, fs, vec};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
@@ -133,21 +133,36 @@ async fn main() -> anyhow::Result<()> {
             .base_url(Url::parse("http://localhost:8069")?)
             .build()?;
         println!("{:#?}", client_19.version().await?);
-        let partners: Vec<serde_json::Value> = client_19
-            .search_read(
-                "res.partner".into(),
-                SearchReadParam {
-                    pagination: Some(PaginationParam {
-                        offset: 0.into(),
-                        limit: 10.into(),
-                    }),
-                    fields: vec!["id".into(), "name".into(), "email".into()],
-                    order: String::from("create_date desc").into(),
-                    ..Default::default()
-                },
-            )
-            .await?;
-        println!("{:#?}", partners);
+        println!(
+            "{:#?}",
+            client_19
+                .export_data(
+                    "res.partner".into(),
+                    ExportDataParam {
+                        ids: client_19
+                            .search(
+                                "res.partner".into(),
+                                SearchParam {
+                                    pagination: PaginationParam {
+                                        limit: 10.into(),
+                                        ..Default::default()
+                                    }
+                                    .into(),
+                                    ..Default::default()
+                                },
+                            )
+                            .await?,
+                        fields_to_export: vec![
+                            "name".into(),
+                            "create_date".into(),
+                            "phone".into(),
+                            "email".into()
+                        ],
+                        context: None,
+                    },
+                )
+                .await?
+        )
     }
 
     Ok(())

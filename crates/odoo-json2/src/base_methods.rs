@@ -5,6 +5,7 @@ pub mod copy_data;
 pub mod copy_translations;
 pub mod create;
 pub mod default_get;
+pub mod export_data;
 pub mod read;
 pub mod search;
 pub mod search_read;
