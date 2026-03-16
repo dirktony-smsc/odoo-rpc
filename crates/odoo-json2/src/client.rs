@@ -19,6 +19,7 @@ use crate::{
         export_data::{ExportDataOutput, ExportDataParam},
         field_get::FieldsGetParam,
         get_external_id::GetExternalIdParam,
+        get_field_translations::{GetFieldTranslationsOut, GetFieldTranslationsParam},
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -296,6 +297,14 @@ impl OdooJson2Client {
         param: GetExternalIdParam,
     ) -> Result<HashMap<String, String>, error::Error> {
         self.call_model_method(&model, "get_external_id", param)
+            .await
+    }
+    pub async fn get_field_translations(
+        &self,
+        model: String,
+        param: GetFieldTranslationsParam,
+    ) -> Result<GetFieldTranslationsOut, error::Error> {
+        self.call_model_method(&model, "get_field_translations", param)
             .await
     }
 }
