@@ -16,3 +16,4 @@ log.workspace = true
 url.workspace = true
 serde_json.workspace = true
 odoo-json2.workspace = true
+odoo-api-commons = {workspace = true}

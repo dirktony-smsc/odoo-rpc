@@ -722,6 +722,7 @@ dependencies = [
  "dotenvy",
  "env_logger",
  "log",
+ "odoo-api-commons",
  "odoo-json2",
  "odoo-rpc",
  "serde",
@@ -732,10 +733,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "odoo-api-commons"
+version = "0.1.0"
+dependencies = [
+ "either",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "odoo-json2"
 version = "0.1.0"
 dependencies = [
  "either",
+ "odoo-api-commons",
  "reqwest",
  "serde",
  "serde_json",
@@ -750,6 +761,7 @@ dependencies = [
  "either",
  "jsonrpsee",
  "log",
+ "odoo-api-commons",
  "serde",
  "serde_json",
  "struct-field-names-as-array",

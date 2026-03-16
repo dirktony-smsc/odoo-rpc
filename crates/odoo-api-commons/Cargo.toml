@@ -1,0 +1,10 @@
+[package]
+name = "odoo-api-commons"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+either = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }

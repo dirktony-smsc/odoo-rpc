@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::utils::{Domain, PaginationParam};
+use odoo_api_commons::{Domain, PaginationParam};
 
 #[derive(Debug, Serialize, Default, Clone)]
 pub struct SearchReadParam {

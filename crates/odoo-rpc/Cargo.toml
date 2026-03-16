@@ -13,3 +13,4 @@ serde_json.workspace = true
 struct-field-names-as-array.workspace = true
 thiserror.workspace = true
 url.workspace = true
+odoo-api-commons.workspace = true

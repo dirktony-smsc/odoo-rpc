@@ -1,10 +1,8 @@
+use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     read::ReadParam, search::SearchParam, search_read::SearchReadParam,
 };
-use odoo_rpc::{
-    ModelName, OdooJsonRPCClient,
-    utils::{Domain, PaginationParam, deserialize_and_default_if_false},
-};
+use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{env::var, fs};
@@ -131,7 +129,7 @@ async fn main() -> anyhow::Result<()> {
             .search_read(
                 "res.partner".into(),
                 SearchReadParam {
-                    pagination: Some(odoo_json2::utils::PaginationParam {
+                    pagination: Some(PaginationParam {
                         offset: 0.into(),
                         limit: 10.into(),
                     }),
@@ -151,7 +149,7 @@ async fn main() -> anyhow::Result<()> {
                             .search(
                                 "res.partner".into(),
                                 SearchParam {
-                                    pagination: Some(odoo_json2::utils::PaginationParam {
+                                    pagination: Some(PaginationParam {
                                         offset: 0.into(),
                                         limit: 10.into()
                                     }),
