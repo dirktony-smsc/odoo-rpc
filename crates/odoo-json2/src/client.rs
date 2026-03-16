@@ -18,6 +18,7 @@ use crate::{
         default_get::DefaultGetParam,
         export_data::{ExportDataOutput, ExportDataParam},
         field_get::FieldsGetParam,
+        get_external_id::GetExternalIdParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -288,5 +289,13 @@ impl OdooJson2Client {
     }
     pub async fn get_base_url(&self, model: String) -> Result<String, error::Error> {
         self.call_model_method(&model, "get_base_url", ()).await
+    }
+    pub async fn get_external_id(
+        &self,
+        model: String,
+        param: GetExternalIdParam,
+    ) -> Result<HashMap<String, String>, error::Error> {
+        self.call_model_method(&model, "get_external_id", param)
+            .await
     }
 }

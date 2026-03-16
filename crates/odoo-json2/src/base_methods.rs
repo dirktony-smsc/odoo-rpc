@@ -7,6 +7,7 @@ pub mod create;
 pub mod default_get;
 pub mod export_data;
 pub mod field_get;
+pub mod get_external_id;
 pub mod read;
 pub mod search;
 pub mod search_read;

@@ -1,4 +1,5 @@
 use odoo_api_commons::*;
+use odoo_json2::base_methods::get_external_id::GetExternalIdParam;
 // use odoo_json2::base_methods::{
 //     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
 //     create::CreateParam, export_data::ExportDataParam, field_get::FieldsGetParam, read::ReadParam,
@@ -195,7 +196,18 @@ async fn main() -> anyhow::Result<()> {
         //         )
         //         .await?
         // )
-        println!("{}", client_19.get_base_url("res.partner".into()).await?)
+        println!(
+            "{:#?}",
+            client_19
+                .get_external_id(
+                    "res.partner".into(),
+                    GetExternalIdParam {
+                        ids: vec![1710, 1709],
+                        context: None
+                    }
+                )
+                .await?
+        )
     }
 
     Ok(())
