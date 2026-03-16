@@ -24,6 +24,7 @@ use crate::{
         get_metadata::{GetMetadataParam, ObjectMetadata},
         get_property_definition::GetPropertyDefinitionParam,
         load::{LoadCallOut, LoadParam},
+        name_create::NameCreateParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -341,5 +342,12 @@ impl OdooJson2Client {
     }
     pub async fn load(&self, model: String, param: LoadParam) -> Result<LoadCallOut, error::Error> {
         self.call_model_method(&model, "load", param).await
+    }
+    pub async fn name_create(
+        &self,
+        model: String,
+        param: NameCreateParam,
+    ) -> Result<(u64, String), error::Error> {
+        self.call_model_method(&model, "name_create", param).await
     }
 }

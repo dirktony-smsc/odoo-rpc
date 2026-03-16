@@ -12,6 +12,7 @@ pub mod get_field_translations;
 pub mod get_metadata;
 pub mod get_property_definition;
 pub mod load;
+pub mod name_create;
 pub mod read;
 pub mod search;
 pub mod search_read;
