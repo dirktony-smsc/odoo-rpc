@@ -162,6 +162,9 @@ impl OdooJson2Client {
             Ok(res.json().await?)
         }
     }
+}
+
+impl OdooJson2Client {
     pub async fn search_read<O>(
         &self,
         model: String,
