@@ -17,6 +17,7 @@ use crate::{
         create::CreateParam,
         default_get::DefaultGetParam,
         export_data::{ExportDataOutput, ExportDataParam},
+        field_get::FieldsGetParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -274,5 +275,15 @@ impl OdooJson2Client {
         param: ExportDataParam,
     ) -> Result<ExportDataOutput, error::Error> {
         self.call_model_method(&model, "export_data", param).await
+    }
+    pub async fn fields_get<O>(
+        &self,
+        model: String,
+        param: FieldsGetParam,
+    ) -> Result<HashMap<String, O>, error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        self.call_model_method(&model, "fields_get", param).await
     }
 }

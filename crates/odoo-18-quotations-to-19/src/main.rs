@@ -1,8 +1,8 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
-    create::CreateParam, export_data::ExportDataParam, read::ReadParam, search::SearchParam,
-    search_read::SearchReadParam, write::WriteParam,
+    create::CreateParam, export_data::ExportDataParam, field_get::FieldsGetParam, read::ReadParam,
+    search::SearchParam, search_read::SearchReadParam, write::WriteParam,
 };
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,17 @@ use url::Url;
 struct TestPartner {
     email: String,
     active: bool,
+}
+
+#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+struct FieldGetOut {
+    #[serde(rename = "type")]
+    #[field_names_as_slice(skip)]
+    _type: String,
+    string: String,
+    required: bool,
+    depends: Vec<String>,
+    exportable: bool,
 }
 
 #[tokio::main]
@@ -160,6 +171,26 @@ async fn main() -> anyhow::Result<()> {
                         ],
                         context: None,
                     },
+                )
+                .await?
+        );
+
+        println!(
+            "{:#?}",
+            client_19
+                .fields_get::<FieldGetOut>(
+                    "res.partner".into(),
+                    FieldsGetParam {
+                        attributes: Some({
+                            let mut fields = FieldGetOut::FIELD_NAMES_AS_SLICE
+                                .iter()
+                                .map(|s| (**s).into())
+                                .collect::<Vec<String>>();
+                            fields.push("type".into());
+                            fields
+                        }),
+                        ..Default::default()
+                    }
                 )
                 .await?
         )
