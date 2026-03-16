@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::utils::{Domain, PaginationParam};
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 pub struct SearchParam {
     pub domain: Vec<Domain>,
     #[serde(flatten, skip_serializing_if = "Option::is_none")]
