@@ -1,3 +1,4 @@
+pub mod base_methods;
 pub mod client;
 pub mod error;
 pub mod utils;

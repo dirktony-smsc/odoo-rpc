@@ -1,13 +1,13 @@
-use std::sync::{LazyLock, OnceLock};
+use std::sync::LazyLock;
 
 use reqwest::{
-    Client, ClientBuilder, Method, Request, RequestBuilder,
-    header::{CONTENT_TYPE, HOST, HeaderValue, USER_AGENT},
+    Client, ClientBuilder, Method, RequestBuilder,
+    header::{CONTENT_TYPE, HOST, USER_AGENT},
 };
 use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
-use crate::error;
+use crate::{base_methods::search_read::SearchReadParam, error};
 
 static DEFAULT_USER_AGENT: LazyLock<String> =
     LazyLock::new(|| format!("odoo-json2-rs/{}", env!("CARGO_PKG_VERSION")));
@@ -153,5 +153,15 @@ impl OdooJson2Client {
         } else {
             Ok(res.json().await?)
         }
+    }
+    pub async fn search_read<O>(
+        &self,
+        model: String,
+        param: SearchReadParam,
+    ) -> Result<Vec<O>, error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        self.call_model_method(&model, "search_read", param).await
     }
 }

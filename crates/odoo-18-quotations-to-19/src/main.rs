@@ -1,3 +1,4 @@
+use odoo_json2::base_methods::search_read::SearchReadParam;
 use odoo_rpc::{
     ModelName, OdooJsonRPCClient,
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
@@ -124,15 +125,17 @@ async fn main() -> anyhow::Result<()> {
             .base_url(Url::parse("http://localhost:8069")?)
             .build()?;
         println!("{:#?}", client_19.version().await?);
-        let partners: serde_json::Value = client_19
-            .call_model_method(
-                "res.partner",
-                "search_read",
-                json!({
-                    "context": {},
-                    "domain": [],
-                    "fields": ["name"]
-                }),
+        let partners: Vec<serde_json::Value> = client_19
+            .search_read(
+                "res.partner".into(),
+                SearchReadParam {
+                    pagination: Some(odoo_json2::utils::PaginationParam {
+                        offset: 0.into(),
+                        limit: 10.into(),
+                    }),
+                    fields: vec!["id".into(), "name".into(), "email".into()],
+                    ..Default::default()
+                },
             )
             .await?;
         println!("{:#?}", partners);
