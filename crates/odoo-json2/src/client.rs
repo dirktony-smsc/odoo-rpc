@@ -29,6 +29,7 @@ use crate::{
         onchange::OnchangeParam,
         read::ReadParam,
         search::SearchParam,
+        search_count::SearchCountParam,
         search_read::SearchReadParam,
         unlink::UnlinkParam,
         write::WriteParam,
@@ -364,5 +365,12 @@ impl OdooJson2Client {
         O: DeserializeOwned,
     {
         self.call_model_method(&model, "onchange", param).await
+    }
+    pub async fn search_count(
+        &self,
+        model: String,
+        param: SearchCountParam,
+    ) -> Result<u64, error::Error> {
+        self.call_model_method(&model, "search_count", param).await
     }
 }

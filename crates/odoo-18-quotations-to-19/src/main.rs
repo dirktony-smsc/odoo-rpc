@@ -2,6 +2,7 @@ use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     get_external_id::GetExternalIdParam, get_field_translations::GetFieldTranslationsParam,
     get_metadata::GetMetadataParam, name_search::NameSearchParam, onchange::OnchangeParam,
+    search_count::SearchCountParam,
 };
 // use odoo_json2::base_methods::{
 //     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
@@ -202,12 +203,7 @@ async fn main() -> anyhow::Result<()> {
         println!(
             "{:#?}",
             client_19
-                .onchange::<serde_json::Value>(
-                    "res.partner".into(),
-                    OnchangeParam {
-                        ..Default::default()
-                    }
-                )
+                .search_count("res.partner".into(), SearchCountParam::default())
                 .await?
         )
     }
