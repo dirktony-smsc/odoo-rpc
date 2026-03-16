@@ -1,5 +1,6 @@
 pub mod action_archive;
 pub mod action_unarchive;
+pub mod copy;
 pub mod create;
 pub mod read;
 pub mod search;
