@@ -21,6 +21,7 @@ use crate::{
         get_external_id::GetExternalIdParam,
         get_field_translations::{GetFieldTranslationsOut, GetFieldTranslationsParam},
         get_metadata::{GetMetadataParam, ObjectMetadata},
+        get_property_definition::GetPropertyDefinitionParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -314,5 +315,16 @@ impl OdooJson2Client {
         param: GetMetadataParam,
     ) -> Result<Vec<ObjectMetadata>, error::Error> {
         self.call_model_method(&model, "get_metadata", param).await
+    }
+    pub async fn get_property_definition<O>(
+        &self,
+        model: String,
+        param: GetPropertyDefinitionParam,
+    ) -> Result<O, error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        self.call_model_method(&model, "get_property_definition", param)
+            .await
     }
 }
