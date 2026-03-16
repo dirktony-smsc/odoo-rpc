@@ -1,4 +1,4 @@
-use odoo_json2::base_methods::search_read::SearchReadParam;
+use odoo_json2::base_methods::{search::SearchParam, search_read::SearchReadParam};
 use odoo_rpc::{
     ModelName, OdooJsonRPCClient,
     utils::{Domain, PaginationParam, deserialize_and_default_if_false},
@@ -139,6 +139,21 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
         println!("{:#?}", partners);
+        println!(
+            "{:#?}",
+            client_19
+                .search(
+                    "res.partner".into(),
+                    SearchParam {
+                        pagination: Some(odoo_json2::utils::PaginationParam {
+                            offset: 0.into(),
+                            limit: 10.into()
+                        }),
+                        ..Default::default()
+                    }
+                )
+                .await?
+        );
     }
 
     Ok(())

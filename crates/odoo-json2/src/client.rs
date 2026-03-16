@@ -7,7 +7,10 @@ use reqwest::{
 use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
-use crate::{base_methods::search_read::SearchReadParam, error};
+use crate::{
+    base_methods::{search::SearchParam, search_read::SearchReadParam},
+    error,
+};
 
 static DEFAULT_USER_AGENT: LazyLock<String> =
     LazyLock::new(|| format!("odoo-json2-rs/{}", env!("CARGO_PKG_VERSION")));
@@ -163,5 +166,12 @@ impl OdooJson2Client {
         O: DeserializeOwned,
     {
         self.call_model_method(&model, "search_read", param).await
+    }
+    pub async fn search(
+        &self,
+        model: String,
+        param: SearchParam,
+    ) -> Result<Vec<u64>, error::Error> {
+        self.call_model_method(&model, "search", param).await
     }
 }
