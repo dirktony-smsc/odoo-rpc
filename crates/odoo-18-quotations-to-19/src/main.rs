@@ -1,6 +1,7 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
+    write::WriteParam,
 };
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
@@ -30,6 +31,11 @@ use url::Url;
 // impl ModelName for TodoTask {
 //     const NAME: &'static str = "project.task";
 // }
+
+#[derive(Debug, Clone, Deserialize)]
+struct TestPartner {
+    email: String,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -140,6 +146,30 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
         println!("{:#?}", partners);
+        client_19
+            .write(
+                "res.partner".into(),
+                WriteParam {
+                    ids: vec![1708],
+                    vals: json!({
+                        "email": "tony@another-fake.com"
+                    }),
+                },
+            )
+            .await?;
+        assert_eq!(
+            client_19
+                .read::<TestPartner>(
+                    "res.partner".into(),
+                    ReadParam {
+                        ids: [1708].into(),
+                        fields: [String::from("email")].into()
+                    }
+                )
+                .await?[0]
+                .email,
+            String::from("tony@another-fake.com")
+        )
     }
 
     Ok(())

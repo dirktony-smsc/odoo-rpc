@@ -10,6 +10,7 @@ use url::Url;
 use crate::{
     base_methods::{
         create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
+        write::WriteParam,
     },
     error,
 };
@@ -191,5 +192,11 @@ impl OdooJson2Client {
         I: Serialize,
     {
         self.call_model_method(&model, "create", param).await
+    }
+    pub async fn write<I>(&self, model: String, param: WriteParam<I>) -> Result<bool, error::Error>
+    where
+        I: Serialize,
+    {
+        self.call_model_method(&model, "write", param).await
     }
 }
