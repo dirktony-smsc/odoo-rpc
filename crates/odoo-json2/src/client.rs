@@ -26,6 +26,7 @@ use crate::{
         load::{LoadCallOut, LoadParam},
         name_create::NameCreateParam,
         name_search::NameSearchParam,
+        onchange::OnchangeParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -357,5 +358,11 @@ impl OdooJson2Client {
         param: NameSearchParam,
     ) -> Result<Vec<(u64, String)>, error::Error> {
         self.call_model_method(&model, "name_search", param).await
+    }
+    pub async fn onchange<O>(&self, model: String, param: OnchangeParam) -> Result<O, error::Error>
+    where
+        O: DeserializeOwned,
+    {
+        self.call_model_method(&model, "onchange", param).await
     }
 }

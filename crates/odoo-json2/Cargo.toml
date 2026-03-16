@@ -12,3 +12,4 @@ thiserror = {workspace = true }
 url = { workspace = true }
 either = { workspace = true }
 odoo-api-commons = { workspace = true }
+better_default.workspace = true
