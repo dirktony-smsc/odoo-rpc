@@ -34,5 +34,5 @@ pub struct ModelMethodCallError {
     pub message: String,
     pub arguments: (String, u16),
     pub context: HashMap<String, serde_json::Value>,
-    pub debug: String,
+    pub debug: Option<String>,
 }
