@@ -134,53 +134,12 @@ async fn main() -> anyhow::Result<()> {
                         limit: 10.into(),
                     }),
                     fields: vec!["id".into(), "name".into(), "email".into()],
+                    order: String::from("create_date desc").into(),
                     ..Default::default()
                 },
             )
             .await?;
         println!("{:#?}", partners);
-        println!(
-            "{:#?}",
-            client_19
-                .read::<serde_json::Value>(
-                    "res.partner".into(),
-                    ReadParam {
-                        ids: client_19
-                            .search(
-                                "res.partner".into(),
-                                SearchParam {
-                                    pagination: Some(PaginationParam {
-                                        offset: 0.into(),
-                                        limit: 10.into()
-                                    }),
-                                    ..Default::default()
-                                }
-                            )
-                            .await?,
-                        fields: vec!["id".into(), "name".into(), "phone".into()]
-                    }
-                )
-                .await?
-        );
-        println!(
-            "{:#?}",
-            client_19
-                .create(
-                    "res.partner".into(),
-                    CreateParam {
-                        vals_list: vec![
-                            json!({
-                                "name": "Tony aaaa",
-                                "email": "tonymail@fake.com"
-                            }),
-                            json!({
-                                "name": "Tony aasdadsadasdada"
-                            })
-                        ]
-                    }
-                )
-                .await?
-        );
     }
 
     Ok(())
