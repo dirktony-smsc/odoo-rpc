@@ -1,6 +1,6 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
-    read::ReadParam, search::SearchParam, search_read::SearchReadParam,
+    create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
 };
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 use serde::{Deserialize, Serialize};
@@ -158,6 +158,25 @@ async fn main() -> anyhow::Result<()> {
                             )
                             .await?,
                         fields: vec!["id".into(), "name".into(), "phone".into()]
+                    }
+                )
+                .await?
+        );
+        println!(
+            "{:#?}",
+            client_19
+                .create(
+                    "res.partner".into(),
+                    CreateParam {
+                        vals_list: vec![
+                            json!({
+                                "name": "Tony aaaa",
+                                "email": "tonymail@fake.com"
+                            }),
+                            json!({
+                                "name": "Tony aasdadsadasdada"
+                            })
+                        ]
                     }
                 )
                 .await?

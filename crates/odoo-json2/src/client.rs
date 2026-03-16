@@ -8,7 +8,9 @@ use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
 use crate::{
-    base_methods::{read::ReadParam, search::SearchParam, search_read::SearchReadParam},
+    base_methods::{
+        create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
+    },
     error,
 };
 
@@ -179,5 +181,15 @@ impl OdooJson2Client {
         O: DeserializeOwned,
     {
         self.call_model_method(&model, "read", param).await
+    }
+    pub async fn create<I>(
+        &self,
+        model: String,
+        param: CreateParam<I>,
+    ) -> Result<Vec<u64>, error::Error>
+    where
+        I: Serialize,
+    {
+        self.call_model_method(&model, "create", param).await
     }
 }
