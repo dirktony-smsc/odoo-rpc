@@ -1,5 +1,6 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
+    action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam,
     create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
     write::WriteParam,
 };
@@ -35,6 +36,7 @@ use url::Url;
 #[derive(Debug, Clone, Deserialize)]
 struct TestPartner {
     email: String,
+    active: bool,
 }
 
 #[tokio::main]
@@ -146,30 +148,60 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
         println!("{:#?}", partners);
-        client_19
-            .write(
-                "res.partner".into(),
-                WriteParam {
-                    ids: vec![1708],
-                    vals: json!({
-                        "email": "tony@another-fake.com"
-                    }),
-                },
-            )
-            .await?;
-        assert_eq!(
+        assert!(
             client_19
                 .read::<TestPartner>(
                     "res.partner".into(),
                     ReadParam {
                         ids: [1708].into(),
-                        fields: [String::from("email")].into()
+                        fields: [String::from("email"), "active".into()].into()
                     }
                 )
                 .await?[0]
-                .email,
-            String::from("tony@another-fake.com")
-        )
+                .active,
+        );
+        client_19
+            .action_archive(
+                "res.partner".into(),
+                ActionArchiveParam {
+                    ids: [1708].into(),
+                    context: None,
+                },
+            )
+            .await?;
+        assert!(
+            !client_19
+                .read::<TestPartner>(
+                    "res.partner".into(),
+                    ReadParam {
+                        ids: [1708].into(),
+                        fields: [String::from("email"), "active".into()].into()
+                    }
+                )
+                .await?[0]
+                .active
+        );
+        client_19
+            .action_unarchive(
+                "res.partner".into(),
+                ActionUnarchiveParam {
+                    ids: [1708].into(),
+                    context: None,
+                },
+            )
+            .await?;
+        assert!(
+            client_19
+                .read::<TestPartner>(
+                    "res.partner".into(),
+                    ReadParam {
+                        ids: [1708].into(),
+                        fields: [String::from("email"), "active".into()].into()
+                    }
+                )
+                .await?[0]
+                .active,
+        );
     }
 
     Ok(())

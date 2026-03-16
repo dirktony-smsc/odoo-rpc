@@ -9,6 +9,7 @@ use url::Url;
 
 use crate::{
     base_methods::{
+        action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam,
         create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
         unlink::UnlinkParam, write::WriteParam,
     },
@@ -201,5 +202,21 @@ impl OdooJson2Client {
     }
     pub async fn unlink(&self, model: String, param: UnlinkParam) -> Result<bool, error::Error> {
         self.call_model_method(&model, "unlink", param).await
+    }
+    pub async fn action_archive(
+        &self,
+        model: String,
+        param: ActionArchiveParam,
+    ) -> Result<(), error::Error> {
+        self.call_model_method(&model, "action_archive", param)
+            .await
+    }
+    pub async fn action_unarchive(
+        &self,
+        model: String,
+        param: ActionUnarchiveParam,
+    ) -> Result<(), error::Error> {
+        self.call_model_method(&model, "action_unarchive", param)
+            .await
     }
 }
