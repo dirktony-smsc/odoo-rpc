@@ -13,6 +13,7 @@ pub mod get_metadata;
 pub mod get_property_definition;
 pub mod load;
 pub mod name_create;
+pub mod name_search;
 pub mod read;
 pub mod search;
 pub mod search_read;

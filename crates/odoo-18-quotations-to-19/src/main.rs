@@ -1,7 +1,7 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     get_external_id::GetExternalIdParam, get_field_translations::GetFieldTranslationsParam,
-    get_metadata::GetMetadataParam,
+    get_metadata::GetMetadataParam, name_search::NameSearchParam,
 };
 // use odoo_json2::base_methods::{
 //     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
@@ -202,7 +202,14 @@ async fn main() -> anyhow::Result<()> {
         println!(
             "{:#?}",
             client_19
-                .has_access("res.partner".into(), "unlink".into())
+                .name_search(
+                    "res.partner".into(),
+                    NameSearchParam {
+                        name: Some("Tony ".into()),
+                        limit: 1.into(),
+                        ..Default::default()
+                    }
+                )
                 .await?
         )
     }

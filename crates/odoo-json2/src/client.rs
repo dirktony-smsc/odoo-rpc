@@ -25,6 +25,7 @@ use crate::{
         get_property_definition::GetPropertyDefinitionParam,
         load::{LoadCallOut, LoadParam},
         name_create::NameCreateParam,
+        name_search::NameSearchParam,
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -349,5 +350,12 @@ impl OdooJson2Client {
         param: NameCreateParam,
     ) -> Result<(u64, String), error::Error> {
         self.call_model_method(&model, "name_create", param).await
+    }
+    pub async fn name_search(
+        &self,
+        model: String,
+        param: NameSearchParam,
+    ) -> Result<Vec<(u64, String)>, error::Error> {
+        self.call_model_method(&model, "name_search", param).await
     }
 }
