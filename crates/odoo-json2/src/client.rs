@@ -23,6 +23,7 @@ use crate::{
         get_field_translations::{GetFieldTranslationsOut, GetFieldTranslationsParam},
         get_metadata::{GetMetadataParam, ObjectMetadata},
         get_property_definition::GetPropertyDefinitionParam,
+        load::{LoadCallOut, LoadParam},
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -337,5 +338,8 @@ impl OdooJson2Client {
             }),
         )
         .await
+    }
+    pub async fn load(&self, model: String, param: LoadParam) -> Result<LoadCallOut, error::Error> {
+        self.call_model_method(&model, "load", param).await
     }
 }

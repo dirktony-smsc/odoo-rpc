@@ -11,6 +11,7 @@ pub mod get_external_id;
 pub mod get_field_translations;
 pub mod get_metadata;
 pub mod get_property_definition;
+pub mod load;
 pub mod read;
 pub mod search;
 pub mod search_read;
