@@ -10,8 +10,9 @@ use url::Url;
 use crate::{
     base_methods::{
         action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam,
-        copy::CopyParam, create::CreateParam, read::ReadParam, search::SearchParam,
-        search_read::SearchReadParam, unlink::UnlinkParam, write::WriteParam,
+        copy::CopyParam, copy_data::CopyDataParam, copy_translations::CopyTranslationsParam,
+        create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
+        unlink::UnlinkParam, write::WriteParam,
     },
     error,
 };
@@ -228,5 +229,24 @@ impl OdooJson2Client {
         D: Serialize,
     {
         self.call_model_method(&model, "copy", param).await
+    }
+    pub async fn copy_data<D, O>(
+        &self,
+        model: String,
+        param: CopyDataParam<D>,
+    ) -> Result<Vec<O>, error::Error>
+    where
+        D: Serialize,
+        O: DeserializeOwned,
+    {
+        self.call_model_method(&model, "copy_data", param).await
+    }
+    pub async fn copy_translations(
+        &self,
+        model: String,
+        param: CopyTranslationsParam,
+    ) -> Result<(), error::Error> {
+        self.call_model_method(&model, "copy_translations", param)
+            .await
     }
 }
