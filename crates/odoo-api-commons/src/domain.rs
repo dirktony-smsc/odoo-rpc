@@ -1,7 +1,18 @@
+pub mod operators;
+
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
-pub struct Domain(pub String, pub String, pub serde_json::Value);
+#[serde(untagged)]
+pub enum Domain {
+    Condition(String, String, serde_json::Value),
+    #[serde(rename = "&")]
+    And,
+    #[serde(rename = "|")]
+    Or,
+    #[serde(rename = "!")]
+    Not,
+}
 
 impl Domain {
     pub fn new<A, B, C>(a: A, b: B, c: C) -> Domain
@@ -10,6 +21,14 @@ impl Domain {
         B: Into<String>,
         C: Into<serde_json::Value>,
     {
-        Self(a.into(), b.into(), c.into())
+        Self::Condition(a.into(), b.into(), c.into())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Domain;
+
+    #[test]
+    fn test_default() {}
 }
