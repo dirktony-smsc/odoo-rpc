@@ -8,7 +8,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
-use crate::{error, utils::NumOrVec};
+use crate::{error, utils::MaybeVec as NumOrVec};
 
 use crate::{
     ModelName,
