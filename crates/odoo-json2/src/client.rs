@@ -5,6 +5,7 @@ use reqwest::{
     header::{CONTENT_TYPE, HOST, USER_AGENT},
 };
 use serde::{Serialize, de::DeserializeOwned};
+use serde_json::json;
 use url::Url;
 
 use crate::{
@@ -326,5 +327,15 @@ impl OdooJson2Client {
     {
         self.call_model_method(&model, "get_property_definition", param)
             .await
+    }
+    pub async fn has_access(&self, model: String, operation: String) -> Result<bool, error::Error> {
+        self.call_model_method(
+            &model,
+            "has_access",
+            json!({
+                "operation": operation
+            }),
+        )
+        .await
     }
 }

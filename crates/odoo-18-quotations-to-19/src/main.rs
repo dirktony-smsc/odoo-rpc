@@ -202,13 +202,7 @@ async fn main() -> anyhow::Result<()> {
         println!(
             "{:#?}",
             client_19
-                .get_metadata(
-                    "res.partner".into(),
-                    GetMetadataParam {
-                        ids: vec![1710, 1709],
-                        ..Default::default()
-                    }
-                )
+                .has_access("res.partner".into(), "unlink".into())
                 .await?
         )
     }
