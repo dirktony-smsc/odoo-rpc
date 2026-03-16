@@ -9,6 +9,7 @@ pub mod export_data;
 pub mod field_get;
 pub mod get_external_id;
 pub mod get_field_translations;
+pub mod get_metadata;
 pub mod read;
 pub mod search;
 pub mod search_read;

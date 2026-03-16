@@ -20,6 +20,7 @@ use crate::{
         field_get::FieldsGetParam,
         get_external_id::GetExternalIdParam,
         get_field_translations::{GetFieldTranslationsOut, GetFieldTranslationsParam},
+        get_metadata::{GetMetadataParam, ObjectMetadata},
         read::ReadParam,
         search::SearchParam,
         search_read::SearchReadParam,
@@ -306,5 +307,12 @@ impl OdooJson2Client {
     ) -> Result<GetFieldTranslationsOut, error::Error> {
         self.call_model_method(&model, "get_field_translations", param)
             .await
+    }
+    pub async fn get_metadata(
+        &self,
+        model: String,
+        param: GetMetadataParam,
+    ) -> Result<Vec<ObjectMetadata>, error::Error> {
+        self.call_model_method(&model, "get_metadata", param).await
     }
 }

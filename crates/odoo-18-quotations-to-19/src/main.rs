@@ -1,6 +1,7 @@
 use odoo_api_commons::*;
 use odoo_json2::base_methods::{
     get_external_id::GetExternalIdParam, get_field_translations::GetFieldTranslationsParam,
+    get_metadata::GetMetadataParam,
 };
 // use odoo_json2::base_methods::{
 //     action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam, copy::CopyParam,
@@ -201,11 +202,10 @@ async fn main() -> anyhow::Result<()> {
         println!(
             "{:#?}",
             client_19
-                .get_field_translations(
+                .get_metadata(
                     "res.partner".into(),
-                    GetFieldTranslationsParam {
-                        ids: vec![1710],
-                        field_name: "name".into(),
+                    GetMetadataParam {
+                        ids: vec![1710, 1709],
                         ..Default::default()
                     }
                 )
