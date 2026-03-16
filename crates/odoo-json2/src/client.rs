@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{collections::HashMap, sync::LazyLock};
 
 use reqwest::{
     Client, ClientBuilder, Method, RequestBuilder,
@@ -11,8 +11,8 @@ use crate::{
     base_methods::{
         action_archive::ActionArchiveParam, action_unarchive::ActionUnarchiveParam,
         copy::CopyParam, copy_data::CopyDataParam, copy_translations::CopyTranslationsParam,
-        create::CreateParam, read::ReadParam, search::SearchParam, search_read::SearchReadParam,
-        unlink::UnlinkParam, write::WriteParam,
+        create::CreateParam, default_get::DefaultGetParam, read::ReadParam, search::SearchParam,
+        search_read::SearchReadParam, unlink::UnlinkParam, write::WriteParam,
     },
     error,
 };
@@ -248,5 +248,12 @@ impl OdooJson2Client {
     ) -> Result<(), error::Error> {
         self.call_model_method(&model, "copy_translations", param)
             .await
+    }
+    pub async fn default_get(
+        &self,
+        model: String,
+        param: DefaultGetParam,
+    ) -> Result<HashMap<String, serde_json::Value>, error::Error> {
+        self.call_model_method(&model, "default_get", param).await
     }
 }

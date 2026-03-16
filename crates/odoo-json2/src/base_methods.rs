@@ -4,6 +4,7 @@ pub mod copy;
 pub mod copy_data;
 pub mod copy_translations;
 pub mod create;
+pub mod default_get;
 pub mod read;
 pub mod search;
 pub mod search_read;
