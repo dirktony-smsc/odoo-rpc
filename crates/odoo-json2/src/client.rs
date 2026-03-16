@@ -32,6 +32,7 @@ use crate::{
         search_count::SearchCountParam,
         search_read::SearchReadParam,
         unlink::UnlinkParam,
+        update_field_translations::UpdateFieldTranslationsParam,
         write::WriteParam,
     },
     error,
@@ -372,5 +373,13 @@ impl OdooJson2Client {
         param: SearchCountParam,
     ) -> Result<u64, error::Error> {
         self.call_model_method(&model, "search_count", param).await
+    }
+    pub async fn update_field_translations(
+        &self,
+        model: String,
+        param: UpdateFieldTranslationsParam,
+    ) -> Result<bool, error::Error> {
+        self.call_model_method(&model, "update_field_translations", param)
+            .await
     }
 }
