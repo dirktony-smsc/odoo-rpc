@@ -29,7 +29,7 @@ pub struct SalesOrderFrom18 {
     pub name: String,
 
     pub company_id: Many2OneRepr,
-    pub partener_id: Many2OneRepr,
+    pub partner_id: Many2OneRepr,
     pub state: SaleOrderState,
     pub locked: bool,
 
