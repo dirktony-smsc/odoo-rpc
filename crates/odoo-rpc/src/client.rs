@@ -309,4 +309,17 @@ impl OdooJsonRPCClient {
         self.execute_0(model, "unlink".into(), additional_args)
             .await
     }
+    pub async fn name_search(
+        &self,
+        model: String,
+        name: String,
+        limit: Option<u32>,
+    ) -> Result<Vec<(u64, String)>, error::Error> {
+        let mut additional_args: Vec<serde_json::Value> = vec![serde_json::to_value(name)?];
+        if let Some(limit) = limit {
+            additional_args.push(limit.into());
+        }
+        self.execute_0(model, "name_search".into(), additional_args)
+            .await
+    }
 }
