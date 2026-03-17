@@ -8,12 +8,18 @@ use clap::Parser;
 
 use config::Config;
 
+use crate::client::Clients;
+
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 #[non_exhaustive]
 pub struct Cli {
     #[arg(short, long)]
     pub configuration_file: String,
+}
+
+pub async fn run_transfert(clients: &Clients) -> anyhow::Result<()> {
+    Ok(())
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -31,6 +37,8 @@ pub async fn run() -> anyhow::Result<()> {
         let info = clients.odoo_19.version().await?;
         log::info!("Odoo JSON2 API version: {}", info.version);
     }
+
+    run_transfert(&clients).await?;
 
     Ok(())
 }
