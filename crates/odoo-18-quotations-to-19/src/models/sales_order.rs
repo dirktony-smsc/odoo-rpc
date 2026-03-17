@@ -25,7 +25,6 @@ pub const SALES_ORDER_MODEL_NAME: &str = "sale.order";
 #[derive(Debug, Clone, Deserialize, FieldNamesAsSlice)]
 pub struct SalesOrderFrom18 {
     pub id: u64,
-    pub active: bool,
 
     pub name: String,
 

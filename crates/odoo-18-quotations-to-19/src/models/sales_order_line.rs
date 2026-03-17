@@ -22,7 +22,6 @@ pub const SALES_ORDER_LINE_MODEL_NAME: &str = "sale.order.line";
 #[derive(Debug, Clone, Deserialize, FieldNamesAsSlice)]
 pub struct SalesOrderLineFrom18 {
     pub id: u64,
-    pub active: bool,
 
     pub order_id: Many2OneRepr,
     pub sequence: u32,
