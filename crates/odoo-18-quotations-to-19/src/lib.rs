@@ -1,8 +1,10 @@
-use std::{fs, path::PathBuf};
+pub mod config;
+
+use std::fs;
 
 use clap::Parser;
-use serde::Deserialize;
-use url::Url;
+
+use config::Config;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
@@ -10,31 +12,6 @@ use url::Url;
 pub struct Cli {
     #[arg(short, long)]
     pub configuration_file: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[non_exhaustive]
-pub struct Odoo18Config {
-    pub url: Url,
-    pub user: String,
-    pub password: String,
-    pub database: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[non_exhaustive]
-pub struct Odoo19Config {
-    pub url: Url,
-    pub api_key: String,
-    pub database: Option<String>,
-    pub host: Option<String>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[non_exhaustive]
-pub struct Config {
-    pub odoo_18: Odoo18Config,
-    pub odoo_19: Odoo19Config,
 }
 
 pub async fn run() -> anyhow::Result<()> {
