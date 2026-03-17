@@ -93,6 +93,7 @@ impl OdooJson2ClientBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct OdooJson2Client {
     rq_client: Client,
     url: Url,
