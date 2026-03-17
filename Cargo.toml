@@ -24,6 +24,7 @@ odoo-api-commons = { path = "./crates/odoo-api-commons" }
 better_default = "1"
 toml = "1"
 clap = "4"
+derive_more = "1"
 
 [workspace.package]
 authors = ["Dirk Tony tony@smsconsulting-mg.com"]
