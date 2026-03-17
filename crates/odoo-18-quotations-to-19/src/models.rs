@@ -1,6 +1,7 @@
-use serde::{Deserialize, Serialize};
-
 pub mod sales_order;
+pub mod sales_order_line;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct Many2OneRepr {
