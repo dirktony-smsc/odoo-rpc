@@ -23,12 +23,14 @@ pub const SALES_ORDER_LINE_MODEL_NAME: &str = "sale.order.line";
 pub struct SalesOrderLineFrom18 {
     pub id: u64,
 
+    pub name: String,
+
     pub order_id: Many2OneRepr,
     pub sequence: u32,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub display_type: Option<DisplayType>,
-    pub is_downpayement: bool,
+    pub is_downpayment: bool,
     pub is_expense: bool,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
@@ -38,12 +40,17 @@ pub struct SalesOrderLineFrom18 {
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub product_uom_category_id: Option<Many2OneRepr>,
 
-    pub product_uom_qty: f32,
-    pub product_uom: Many2OneRepr,
-    pub linked_line_id: Many2OneRepr,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub product_uom_qty: Option<f32>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub product_uom: Option<Many2OneRepr>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub linked_line_id: Option<Many2OneRepr>,
 
-    pub tax_id: Many2OneRepr,
-    pub price_unit: f32,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub tax_id: Option<Many2OneRepr>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub price_unit: Option<f32>,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub customer_lead: Option<f32>,
