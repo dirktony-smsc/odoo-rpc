@@ -22,6 +22,8 @@ reqwest = { version = "0.13", default-features = false }
 odoo-json2 = { path = "./crates/odoo-json2" }
 odoo-api-commons = { path = "./crates/odoo-api-commons" }
 better_default = "1"
+toml = "1"
+clap = "4"
 
 [workspace.package]
 authors = ["Dirk Tony tony@smsconsulting-mg.com"]

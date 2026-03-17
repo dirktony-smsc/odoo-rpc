@@ -13,7 +13,9 @@ dotenvy.workspace = true
 serde = { workspace = true, features = ["derive"] }
 env_logger.workspace = true
 log.workspace = true
-url.workspace = true
+url = {workspace = true, features = ["serde"]}
 serde_json.workspace = true
 odoo-json2.workspace = true
 odoo-api-commons = {workspace = true}
+toml.workspace = true
+clap = { workspace = true, features = ["derive"] }
