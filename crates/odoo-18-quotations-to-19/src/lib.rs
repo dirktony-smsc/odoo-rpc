@@ -2,26 +2,31 @@ pub mod client;
 pub mod config;
 pub mod error;
 pub mod models;
+pub mod transfert;
 pub(crate) mod utils;
 
-use std::fs;
+use std::{fs, num::NonZero};
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 use config::Config;
 
-use crate::client::Clients;
-
 #[derive(Debug, Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, propagate_version = true)]
 #[non_exhaustive]
 pub struct Cli {
+    #[arg(short)]
+    pub limit: Option<NonZero<u32>>,
     #[arg(short, long)]
     pub configuration_file: String,
+    #[command(subcommand)]
+    pub command: Commands,
 }
 
-pub async fn run_transfert(clients: &Clients) -> anyhow::Result<()> {
-    Ok(())
+#[derive(Debug, Subcommand)]
+#[non_exhaustive]
+pub enum Commands {
+    Sales,
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -40,7 +45,13 @@ pub async fn run() -> anyhow::Result<()> {
         log::info!("Odoo JSON2 API version: {}", info.version);
     }
 
-    run_transfert(&clients).await?;
+    let limit = cli.limit.unwrap_or(NonZero::new(30).unwrap());
+
+    match cli.command {
+        Commands::Sales => {
+            transfert::sale_order::run_transfert(&clients, limit).await?;
+        }
+    }
 
     Ok(())
 }
