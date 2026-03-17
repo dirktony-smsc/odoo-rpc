@@ -1,4 +1,5 @@
 use derive_more::derive::Display;
+use odoo_api_commons::deserialize_and_default_if_false;
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
@@ -33,12 +34,17 @@ pub struct SalesOrderFrom18 {
     pub state: SaleOrderState,
     pub locked: bool,
 
-    pub client_order_ref: String,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub client_order_ref: Option<String>,
     pub create_date: String,
-    pub commitment_date: String,
-    pub date_order: String,
-    pub origin: String,
-    pub reference: String,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub commitment_date: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub date_order: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub origin: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub reference: Option<String>,
 
     pub partner_invoice_id: Many2OneRepr,
     pub partner_shipping_id: Many2OneRepr,
