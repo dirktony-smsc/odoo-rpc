@@ -19,6 +19,7 @@ pub enum DisplayType {
 
 pub const SALES_ORDER_LINE_MODEL_NAME: &str = "sale.order.line";
 
+// TODO fix
 #[derive(Debug, Clone, Deserialize, FieldNamesAsSlice)]
 pub struct SalesOrderLineFrom18 {
     pub id: u64,
@@ -48,7 +49,7 @@ pub struct SalesOrderLineFrom18 {
     pub linked_line_id: Option<Many2OneRepr>,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
-    pub tax_id: Option<Many2OneRepr>,
+    pub tax_id: Option<Vec<u64>>,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub price_unit: Option<f32>,
 

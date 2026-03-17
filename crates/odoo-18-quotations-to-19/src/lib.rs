@@ -27,6 +27,7 @@ pub struct Cli {
 #[non_exhaustive]
 pub enum Commands {
     Sales,
+    SomeDebug,
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -50,6 +51,17 @@ pub async fn run() -> anyhow::Result<()> {
     match cli.command {
         Commands::Sales => {
             transfert::sale_order::run_transfert(&clients, limit).await?;
+        }
+        Commands::SomeDebug => {
+            let a = clients
+                .odoo_18
+                .fields_get(
+                    "sale.order.line".into(),
+                    Default::default(),
+                    Default::default(),
+                )
+                .await?;
+            fs::write("./target/sale.order.line.toml", toml::to_string(&a)?)?;
         }
     }
 
