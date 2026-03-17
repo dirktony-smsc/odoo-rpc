@@ -26,6 +26,8 @@ pub struct Odoo18Config {
 pub struct Odoo19Config {
     pub url: Url,
     pub api_key: String,
+    pub database: Option<String>,
+    pub host: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -38,5 +40,6 @@ pub struct Config {
 pub async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let config: Config = toml::from_str(&fs::read_to_string(&cli.configuration_file)?)?;
+    println!("{:#?}", config);
     Ok(())
 }
