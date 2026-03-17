@@ -1,4 +1,6 @@
+pub mod client;
 pub mod config;
+pub mod error;
 
 use std::fs;
 
@@ -16,7 +18,19 @@ pub struct Cli {
 
 pub async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
     let config: Config = toml::from_str(&fs::read_to_string(&cli.configuration_file)?)?;
-    println!("{:#?}", config);
+
+    let clients = client::Clients::from_config(config).await?;
+
+    {
+        let info = clients.odoo_18.version().await?;
+        log::info!("Odoo JSON RPC version: {}", info.server_version);
+    }
+    {
+        let info = clients.odoo_19.version().await?;
+        log::info!("Odoo JSON2 API version: {}", info.version);
+    }
+
     Ok(())
 }

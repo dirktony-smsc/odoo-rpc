@@ -17,6 +17,7 @@ pub struct Odoo19Config {
     pub api_key: String,
     pub database: Option<String>,
     pub host: Option<String>,
+    pub user_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

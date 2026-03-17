@@ -19,3 +19,4 @@ odoo-json2.workspace = true
 odoo-api-commons = {workspace = true}
 toml.workspace = true
 clap = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
