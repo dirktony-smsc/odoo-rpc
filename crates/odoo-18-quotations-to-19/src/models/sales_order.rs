@@ -53,3 +53,38 @@ pub struct SalesOrderFrom18 {
 impl ModelName for SalesOrderFrom18 {
     const NAME: &'static str = SALES_ORDER_MODEL_NAME;
 }
+
+#[derive(Debug, Serialize)]
+pub struct SalesOrderTo19 {
+    pub name: String,
+    pub state: SaleOrderState,
+    pub partner_id: u64,
+    pub client_order_ref: Option<String>,
+    pub create_date: String,
+
+    pub commitment_date: Option<String>,
+    pub date_order: Option<String>,
+    pub origin: Option<String>,
+    pub reference: Option<String>,
+
+    pub partner_invoice_id: u64,
+    pub partner_shipping_id: u64,
+}
+
+impl From<SalesOrderFrom18> for SalesOrderTo19 {
+    fn from(value: SalesOrderFrom18) -> Self {
+        SalesOrderTo19 {
+            name: value.name,
+            state: value.state,
+            partner_id: value.partner_id.id,
+            client_order_ref: value.client_order_ref,
+            create_date: value.create_date,
+            commitment_date: value.commitment_date,
+            date_order: value.date_order,
+            origin: value.origin,
+            reference: value.reference,
+            partner_invoice_id: value.partner_invoice_id.id,
+            partner_shipping_id: value.partner_shipping_id.id,
+        }
+    }
+}
