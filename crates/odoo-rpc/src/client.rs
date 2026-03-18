@@ -8,7 +8,10 @@ use serde::{Serialize, de::DeserializeOwned};
 use struct_field_names_as_array::FieldNamesAsSlice;
 use url::Url;
 
-use crate::{error, utils::MaybeVec as NumOrVec};
+use crate::{
+    error,
+    utils::{MaybeSomething, MaybeVec as NumOrVec},
+};
 
 use crate::{
     ModelName,
@@ -69,7 +72,7 @@ impl OdooJsonRPCClient {
             .await?)
     }
     pub async fn login(&mut self) -> Result<(), error::Error> {
-        let uid: u32 = self
+        let MaybeSomething(uid): MaybeSomething<Option<u32>> = self
             .call(
                 "common".into(),
                 "login".into(),
@@ -80,8 +83,13 @@ impl OdooJsonRPCClient {
                 ],
             )
             .await?;
-        self.uid = Some(uid);
-        Ok(())
+        match uid {
+            Some(uid) => {
+                self.uid = Some(uid);
+                Ok(())
+            }
+            None => Err(error::Error::InvalidApiToken),
+        }
     }
     pub async fn new(
         base: Url,

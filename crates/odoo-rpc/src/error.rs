@@ -6,4 +6,6 @@ pub enum Error {
     #[error("The current client is not logged in")]
     NotLoggedIn,
     SerdeJson(#[from] serde_json::Error),
+    #[error("the given api token have expired or invalid")]
+    InvalidApiToken,
 }
