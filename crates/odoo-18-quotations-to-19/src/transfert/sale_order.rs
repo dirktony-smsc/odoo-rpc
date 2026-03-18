@@ -94,7 +94,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         partner_shipping_id,
                     }
                 };
-                *clients
+                let res = clients
                     .odoo_19
                     .create(
                         sales_order::SALES_ORDER_MODEL_NAME.into(),
@@ -102,9 +102,9 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                             vals_list: vec![new_order],
                         },
                     )
-                    .await?
-                    .first()
-                    .ok_or(error::Error::NotFound)?
+                    .await?;
+                log::debug!("new ids {:#?}", res);
+                *res.first().ok_or(error::Error::NotFound)?
             };
             log::info!("New order id {}", new_order_id);
             let search_domain = vec![Domain::condition("order_id", EQUALS_TO, order.id)];
@@ -227,7 +227,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 customer_lead: order_line.customer_lead,
                                 product_uom_qty: order_line.product_uom_qty,
                             };
-                            clients
+                            let res = clients
                                 .odoo_19
                                 .create(
                                     SALES_ORDER_LINE_MODEL_NAME.into(),
@@ -235,10 +235,9 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                         vals_list: vec![new_order_line],
                                     },
                                 )
-                                .await?
-                                .first()
-                                .copied()
-                                .ok_or(error::Error::NotFound)?
+                                .await?;
+                            log::debug!("new ids {:#?}", res);
+                            res.first().copied().ok_or(error::Error::NotFound)?
                         };
                         log::info!("new order line id: {new_order_line_id}");
                         order_lines_mappings.insert(order_line.id, new_order_line_id);
