@@ -1,5 +1,5 @@
 use derive_more::derive::Display;
-use odoo_api_commons::deserialize_and_default_if_false;
+use odoo_api_commons::{Command, deserialize_and_default_if_false};
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
@@ -19,7 +19,6 @@ pub enum DisplayType {
 
 pub const SALES_ORDER_LINE_MODEL_NAME: &str = "sale.order.line";
 
-// TODO fix
 #[derive(Debug, Clone, Deserialize, FieldNamesAsSlice)]
 pub struct SalesOrderLineFrom18 {
     pub id: u64,
@@ -59,4 +58,29 @@ pub struct SalesOrderLineFrom18 {
 
 impl ModelName for SalesOrderLineFrom18 {
     const NAME: &'static str = SALES_ORDER_LINE_MODEL_NAME;
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct SalesOrderLineToOdoo19 {
+    pub name: String,
+
+    pub order_id: u64,
+    pub sequence: u32,
+
+    pub display_type: Option<DisplayType>,
+    pub is_downpayment: bool,
+    pub is_expense: bool,
+
+    pub product_id: Option<u64>,
+    pub product_template_id: Option<u64>,
+    pub product_uom_category_id: Option<u64>,
+
+    pub product_uom_qty: Option<f32>,
+    pub product_uom: Option<u64>,
+    pub linked_line_id: Option<u64>,
+
+    pub tax_id: Option<Vec<Command<()>>>,
+    pub price_unit: Option<f32>,
+
+    pub customer_lead: Option<f32>,
 }
