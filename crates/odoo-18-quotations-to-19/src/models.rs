@@ -2,6 +2,7 @@ pub mod sales_order;
 pub mod sales_order_line;
 
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 #[derive(Debug, Clone)]
 pub struct Many2OneRepr {
@@ -26,4 +27,10 @@ impl Serialize for Many2OneRepr {
     {
         (self.id, &self.name).serialize(serializer)
     }
+}
+
+#[derive(Debug, Clone, Deserialize, FieldNamesAsSlice)]
+pub struct IdNameRepr {
+    pub id: u64,
+    pub name: String,
 }

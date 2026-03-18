@@ -73,13 +73,11 @@ pub struct SalesOrderLineToOdoo19 {
 
     pub product_id: Option<u64>,
     pub product_template_id: Option<u64>,
-    pub product_uom_category_id: Option<u64>,
 
     pub product_uom_qty: Option<f32>,
-    pub product_uom: Option<u64>,
     pub linked_line_id: Option<u64>,
 
-    pub tax_id: Option<Vec<Command<()>>>,
+    pub tax_ids: Option<Vec<Command<()>>>,
     pub price_unit: Option<f32>,
 
     pub customer_lead: Option<f32>,
