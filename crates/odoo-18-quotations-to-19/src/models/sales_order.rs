@@ -70,21 +70,3 @@ pub struct SalesOrderTo19 {
     pub partner_invoice_id: u64,
     pub partner_shipping_id: u64,
 }
-
-impl From<SalesOrderFrom18> for SalesOrderTo19 {
-    fn from(value: SalesOrderFrom18) -> Self {
-        SalesOrderTo19 {
-            name: value.name,
-            state: value.state,
-            partner_id: value.partner_id.id,
-            client_order_ref: value.client_order_ref,
-            create_date: value.create_date,
-            commitment_date: value.commitment_date,
-            date_order: value.date_order,
-            origin: value.origin,
-            reference: value.reference,
-            partner_invoice_id: value.partner_invoice_id.id,
-            partner_shipping_id: value.partner_shipping_id.id,
-        }
-    }
-}
