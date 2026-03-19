@@ -25,6 +25,7 @@ better_default = "1"
 toml = "1"
 clap = "4"
 derive_more = "1"
+regex = "1"
 
 [workspace.package]
 authors = ["Dirk Tony tony@smsconsulting-mg.com"]

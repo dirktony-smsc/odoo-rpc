@@ -829,6 +829,7 @@ dependencies = [
  "odoo-api-commons",
  "odoo-json2",
  "odoo-rpc",
+ "regex",
  "serde",
  "serde_json",
  "struct-field-names-as-array",

@@ -21,3 +21,4 @@ toml.workspace = true
 clap = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
 derive_more = { workspace = true, features = ["display"] }
+regex = { workspace = true }

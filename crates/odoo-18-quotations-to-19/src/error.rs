@@ -8,4 +8,5 @@ pub enum Error {
     #[error("Nothing created when creating objects")]
     NothingCreated,
     SerdeJson(#[from] serde_json::Error),
+    Regex(#[from] regex::Error),
 }

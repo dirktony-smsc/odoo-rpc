@@ -2,6 +2,7 @@ use odoo_json2::{
     OdooJson2Client,
     base_methods::{name_create::NameCreateParam, name_search::NameSearchParam},
 };
+use regex::Regex;
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::error;
@@ -60,4 +61,8 @@ pub async fn get_or_create_partner_by_name(
     name: String,
 ) -> Result<u64, error::Error> {
     get_or_create_by_name(client, "res.partner".into(), name).await
+}
+
+pub fn remove_slices_from_string(i: String) -> Result<String, error::Error> {
+    Ok(Regex::new(r"\([^)]*\)")?.replace(&i, "").into())
 }
