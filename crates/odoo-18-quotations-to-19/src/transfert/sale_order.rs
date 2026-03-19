@@ -13,7 +13,10 @@ use crate::{
             SALES_ORDER_LINE_MODEL_NAME, SalesOrderLineFrom18, SalesOrderLineToOdoo19,
         },
     },
-    utils::{get_or_create_partner_by_name, remove_slices_from_string, tax_cache::TaxMappingCache},
+    utils::{
+        get_or_create_partner_by_name, remove_slices_from_string, tax_cache::TaxMappingCache,
+        trim_whitespace_v2,
+    },
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -127,11 +130,9 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                             .name_search(
                                                 "product.product".into(),
                                                 NameSearchParam {
-                                                    name: remove_slices_from_string(
-                                                        product.name.clone(),
-                                                    )?
-                                                    .trim()
-                                                    .to_string()
+                                                    name: trim_whitespace_v2(
+                                                        &remove_slices_from_string(&product.name)?,
+                                                    )
                                                     .into(),
                                                     limit: Some(1),
                                                     ..Default::default()

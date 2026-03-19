@@ -65,8 +65,34 @@ pub async fn get_or_create_partner_by_name(
     get_or_create_by_name(client, "res.partner".into(), name).await
 }
 
-pub fn remove_slices_from_string(i: String) -> Result<String, error::Error> {
+pub fn remove_slices_from_string(i: &str) -> Result<String, error::Error> {
     let s: String = Regex::new(r"\[[^)]*\]")?.replace(&i, "").into();
     log::debug!("{s}");
     Ok(s)
+}
+
+pub fn trim_whitespace_v2(s: &str) -> String {
+    // second attempt: only allocate a string
+    let mut result = String::with_capacity(s.len());
+    s.split_whitespace().for_each(|w| {
+        if !result.is_empty() {
+            result.push(' ');
+        }
+        result.push_str(w);
+    });
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::utils::{remove_slices_from_string, trim_whitespace_v2};
+
+    #[test]
+    fn test_rm_slices() {
+        assert_eq!(remove_slices_from_string("[aaaaaaaa]aa").unwrap(), "aa");
+    }
+    #[test]
+    fn test_trim_whitespace() {
+        assert_eq!(trim_whitespace_v2("   Hello     World!"), "Hello World!");
+    }
 }
