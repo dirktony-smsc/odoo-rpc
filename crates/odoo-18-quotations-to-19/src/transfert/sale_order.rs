@@ -44,7 +44,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     let partner_id = clients
                         .odoo_19
                         .name_search(
-                            sales_order::SALES_ORDER_MODEL_NAME.into(),
+                            "res.partner".into(),
                             NameSearchParam {
                                 name: order.partner_id.name.clone().into(),
                                 ..Default::default()
@@ -57,7 +57,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     let partner_invoice_id = clients
                         .odoo_19
                         .name_search(
-                            sales_order::SALES_ORDER_MODEL_NAME.into(),
+                            "res.partner".into(),
                             NameSearchParam {
                                 name: order.partner_invoice_id.name.clone().into(),
                                 ..Default::default()
@@ -70,7 +70,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     let partner_shipping_id = clients
                         .odoo_19
                         .name_search(
-                            sales_order::SALES_ORDER_MODEL_NAME.into(),
+                            "res.partner".into(),
                             NameSearchParam {
                                 name: order.partner_shipping_id.name.clone().into(),
                                 ..Default::default()
@@ -104,7 +104,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     )
                     .await?;
                 log::debug!("new ids {:#?}", res);
-                *res.first().ok_or(error::Error::NotFound)?
+                *res.first().ok_or(error::Error::NothingCreated)?
             };
             log::info!("New order id {}", new_order_id);
             let search_domain = vec![Domain::condition("order_id", EQUALS_TO, order.id)];
@@ -237,7 +237,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 )
                                 .await?;
                             log::debug!("new ids {:#?}", res);
-                            res.first().copied().ok_or(error::Error::NotFound)?
+                            res.first().copied().ok_or(error::Error::NothingCreated)?
                         };
                         log::info!("new order line id: {new_order_line_id}");
                         order_lines_mappings.insert(order_line.id, new_order_line_id);
