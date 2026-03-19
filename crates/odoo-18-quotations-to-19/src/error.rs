@@ -5,4 +5,6 @@ pub enum Error {
     Json2(#[from] odoo_json2::error::Error),
     #[error("not found??")]
     NotFound,
+    #[error("Nothing created when creating objects")]
+    NothingCreated,
 }
