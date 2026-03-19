@@ -1,20 +1,22 @@
 use std::{collections::HashMap, num::NonZero};
 
 use odoo_api_commons::{Command, Domain, PaginationParam, domain::operators::EQUALS_TO};
-use odoo_json2::base_methods::{create::CreateParam, name_search::NameSearchParam};
+use odoo_json2::base_methods::{
+    create::CreateParam, name_search::NameSearchParam, search::SearchParam,
+};
 use odoo_rpc::ModelName;
 
 use crate::{
     client::Clients,
     error,
     models::{
-        IdNameRepr,
+        acount_tax::AccountTax1,
         sales_order::{self, SalesOrderFrom18, SalesOrderTo19},
         sales_order_line::{
             SALES_ORDER_LINE_MODEL_NAME, SalesOrderLineFrom18, SalesOrderLineToOdoo19,
         },
     },
-    utils::FieldnamesAsStringVec,
+    utils::get_or_create_partner_by_name,
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -38,48 +40,27 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             .await?;
         for order in orders {
             log::info!("Order `{}` ({})", order.id, order.name);
-
+            log::debug!("{:#?}", order);
             let new_order_id = {
                 let new_order = {
-                    let partner_id = clients
-                        .odoo_19
-                        .name_search(
-                            "res.partner".into(),
-                            NameSearchParam {
-                                name: order.partner_id.name.clone().into(),
-                                ..Default::default()
-                            },
-                        )
-                        .await?
-                        .first()
-                        .ok_or(error::Error::NotFound)?
-                        .0;
-                    let partner_invoice_id = clients
-                        .odoo_19
-                        .name_search(
-                            "res.partner".into(),
-                            NameSearchParam {
-                                name: order.partner_invoice_id.name.clone().into(),
-                                ..Default::default()
-                            },
-                        )
-                        .await?
-                        .first()
-                        .ok_or(error::Error::NotFound)?
-                        .0;
-                    let partner_shipping_id = clients
-                        .odoo_19
-                        .name_search(
-                            "res.partner".into(),
-                            NameSearchParam {
-                                name: order.partner_shipping_id.name.clone().into(),
-                                ..Default::default()
-                            },
-                        )
-                        .await?
-                        .first()
-                        .ok_or(error::Error::NotFound)?
-                        .0;
+                    log::debug!("Getting partner id of {:?}", order.partner_id);
+                    let partner_id = get_or_create_partner_by_name(
+                        &clients.odoo_19,
+                        order.partner_id.name.clone(),
+                    )
+                    .await?;
+                    log::debug!("Getting partner id of {:?}", order.partner_invoice_id);
+                    let partner_invoice_id = get_or_create_partner_by_name(
+                        &clients.odoo_19,
+                        order.partner_invoice_id.name.clone(),
+                    )
+                    .await?;
+                    log::debug!("Getting partner id of {:?}", order.partner_shipping_id);
+                    let partner_shipping_id = get_or_create_partner_by_name(
+                        &clients.odoo_19,
+                        order.partner_shipping_id.name.clone(),
+                    )
+                    .await?;
                     SalesOrderTo19 {
                         name: order.name.clone(),
                         state: order.state,
@@ -103,7 +84,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         },
                     )
                     .await?;
-                log::debug!("new ids {:#?}", res);
+                log::debug!("new ids {:?}", res);
                 *res.first().ok_or(error::Error::NothingCreated)?
             };
             log::info!("New order id {}", new_order_id);
@@ -142,6 +123,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 is_downpayment: order_line.is_downpayment,
                                 is_expense: order_line.is_expense,
                                 product_id: if let Some(product) = order_line.product_id.as_ref() {
+                                    log::debug!("Getting product id of {:?}", product);
                                     Some(
                                         clients
                                             .odoo_19
@@ -164,6 +146,10 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 product_template_id: if let Some(product_template) =
                                     order_line.product_template_id.as_ref()
                                 {
+                                    log::debug!(
+                                        "Getting product template id of {:?}",
+                                        product_template
+                                    );
                                     clients
                                         .odoo_19
                                         .name_search(
@@ -189,28 +175,38 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                     } else {
                                         let taxes_from_18 = clients
                                             .odoo_18
-                                            .read::<IdNameRepr>(
-                                                "account.tax".into(),
-                                                tax_ids.clone(),
-                                                IdNameRepr::field_names_as_string_vec(),
+                                            .read_with_auto_model_name_and_field_names::<AccountTax1>(
+                                               tax_ids.clone()
                                             )
                                             .await?;
                                         let mut tax_ids = Vec::<u64>::new();
                                         for tax in taxes_from_18 {
+                                            log::debug!("Getting tax id of {:?}", tax);
                                             tax_ids.push(
                                                 clients
                                                     .odoo_19
-                                                    .name_search(
+                                                    .search(
                                                         "account.tax".into(),
-                                                        NameSearchParam {
-                                                            name: tax.name.into(),
+                                                        SearchParam {
+                                                            domain: vec![
+                                                                Domain::condition(
+                                                                    "amount", "=", tax.amount,
+                                                                ),
+                                                                Domain::condition(
+                                                                    "type_tax_use",
+                                                                    "=",
+                                                                    serde_json::to_value(
+                                                                        tax.type_tax_use,
+                                                                    )?,
+                                                                ),
+                                                            ],
                                                             ..Default::default()
                                                         },
                                                     )
                                                     .await?
                                                     .first()
-                                                    .ok_or(error::Error::NotFound)?
-                                                    .0,
+                                                    .copied()
+                                                    .ok_or(error::Error::NotFound)?,
                                             );
                                         }
                                         Some(
@@ -236,7 +232,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                     },
                                 )
                                 .await?;
-                            log::debug!("new ids {:#?}", res);
+                            log::debug!("new ids {:?}", res);
                             res.first().copied().ok_or(error::Error::NothingCreated)?
                         };
                         log::info!("new order line id: {new_order_line_id}");
