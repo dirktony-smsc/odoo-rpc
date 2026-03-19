@@ -16,7 +16,7 @@ use crate::{
             SALES_ORDER_LINE_MODEL_NAME, SalesOrderLineFrom18, SalesOrderLineToOdoo19,
         },
     },
-    utils::get_or_create_partner_by_name,
+    utils::{get_or_create_partner_by_name, remove_slices_from_string},
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -40,7 +40,6 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             .await?;
         for order in orders {
             log::info!("Order `{}` ({})", order.id, order.name);
-            log::debug!("{:#?}", order);
             let new_order_id = {
                 let new_order = {
                     log::debug!("Getting partner id of {:?}", order.partner_id);
@@ -130,7 +129,10 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                             .name_search(
                                                 "product.product".into(),
                                                 NameSearchParam {
-                                                    name: product.name.clone().into(),
+                                                    name: remove_slices_from_string(
+                                                        product.name.clone(),
+                                                    )?
+                                                    .into(),
                                                     limit: Some(1),
                                                     ..Default::default()
                                                 },
