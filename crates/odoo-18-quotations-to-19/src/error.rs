@@ -7,4 +7,5 @@ pub enum Error {
     NotFound,
     #[error("Nothing created when creating objects")]
     NothingCreated,
+    SerdeJson(#[from] serde_json::Error),
 }
