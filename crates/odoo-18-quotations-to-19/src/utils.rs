@@ -1,3 +1,5 @@
+pub mod tax_cache;
+
 use odoo_json2::{
     OdooJson2Client,
     base_methods::{name_create::NameCreateParam, name_search::NameSearchParam},

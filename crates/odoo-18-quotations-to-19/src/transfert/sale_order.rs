@@ -1,22 +1,19 @@
 use std::{collections::HashMap, num::NonZero};
 
 use odoo_api_commons::{Command, Domain, PaginationParam, domain::operators::EQUALS_TO};
-use odoo_json2::base_methods::{
-    create::CreateParam, name_search::NameSearchParam, search::SearchParam,
-};
+use odoo_json2::base_methods::{create::CreateParam, name_search::NameSearchParam};
 use odoo_rpc::ModelName;
 
 use crate::{
     client::Clients,
     error,
     models::{
-        acount_tax::AccountTax1,
         sales_order::{self, SalesOrderFrom18, SalesOrderTo19},
         sales_order_line::{
             SALES_ORDER_LINE_MODEL_NAME, SalesOrderLineFrom18, SalesOrderLineToOdoo19,
         },
     },
-    utils::{get_or_create_partner_by_name, remove_slices_from_string},
+    utils::{get_or_create_partner_by_name, remove_slices_from_string, tax_cache::TaxMappingCache},
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -27,6 +24,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
     log::info!("Odoo 18 `sale.order` count = {count}");
     let mut order_lines_mappings = HashMap::<u64, u64>::new();
     let mut current_offset = 0u32;
+    let mut tax_cache = TaxMappingCache::default();
     loop {
         let orders = clients
             .odoo_18
@@ -177,44 +175,14 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                     if tax_ids.is_empty() {
                                         Some(Vec::<Command<()>>::new())
                                     } else {
-                                        let taxes_from_18 = clients
-                                            .odoo_18
-                                            .read_with_auto_model_name_and_field_names::<AccountTax1>(
-                                               tax_ids.clone()
-                                            )
-                                            .await?;
-                                        let mut tax_ids = Vec::<u64>::new();
-                                        for tax in taxes_from_18 {
+                                        let mut tax_ids_to_send = Vec::<u64>::new();
+                                        for tax in tax_ids {
                                             log::debug!("Getting tax id of {:?}", tax);
-                                            tax_ids.push(
-                                                clients
-                                                    .odoo_19
-                                                    .search(
-                                                        "account.tax".into(),
-                                                        SearchParam {
-                                                            domain: vec![
-                                                                Domain::condition(
-                                                                    "amount", "=", tax.amount,
-                                                                ),
-                                                                Domain::condition(
-                                                                    "type_tax_use",
-                                                                    "=",
-                                                                    serde_json::to_value(
-                                                                        tax.type_tax_use,
-                                                                    )?,
-                                                                ),
-                                                            ],
-                                                            ..Default::default()
-                                                        },
-                                                    )
-                                                    .await?
-                                                    .first()
-                                                    .copied()
-                                                    .ok_or(error::Error::NotFound)?,
-                                            );
+                                            tax_ids_to_send
+                                                .push(tax_cache.get_mapping(clients, *tax).await?);
                                         }
                                         Some(
-                                            tax_ids
+                                            tax_ids_to_send
                                                 .into_iter()
                                                 .map(|id| Command::Link { id })
                                                 .collect(),
