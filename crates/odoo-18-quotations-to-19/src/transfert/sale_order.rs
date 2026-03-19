@@ -132,6 +132,8 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                                     name: remove_slices_from_string(
                                                         product.name.clone(),
                                                     )?
+                                                    .trim()
+                                                    .to_string()
                                                     .into(),
                                                     limit: Some(1),
                                                     ..Default::default()
