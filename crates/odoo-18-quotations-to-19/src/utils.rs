@@ -64,5 +64,7 @@ pub async fn get_or_create_partner_by_name(
 }
 
 pub fn remove_slices_from_string(i: String) -> Result<String, error::Error> {
-    Ok(Regex::new(r"\([^)]*\)")?.replace(&i, "").into())
+    let s: String = Regex::new(r"\[[^)]*\]")?.replace(&i, "").into();
+    log::debug!("{s}");
+    Ok(s)
 }
