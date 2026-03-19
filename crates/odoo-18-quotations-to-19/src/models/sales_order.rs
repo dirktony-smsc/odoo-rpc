@@ -48,6 +48,7 @@ pub struct SalesOrderFrom18 {
 
     pub partner_invoice_id: Many2OneRepr,
     pub partner_shipping_id: Many2OneRepr,
+    // pub user_id: Many2OneRepr,
 }
 
 impl ModelName for SalesOrderFrom18 {
