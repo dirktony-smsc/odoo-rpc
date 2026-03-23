@@ -10,6 +10,7 @@ use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::error;
 
+#[allow(unused)]
 pub trait FieldnamesAsStringVec {
     fn field_names_as_string_vec() -> Vec<String>;
 }
@@ -67,7 +68,7 @@ pub async fn get_or_create_partner_by_name(
 }
 
 pub fn remove_slices_from_string(i: &str) -> Result<String, error::Error> {
-    let s: String = Regex::new(r"\[[^)]*\]")?.replace(&i, "").into();
+    let s: String = Regex::new(r"\[[^)]*\]")?.replace(i, "").into();
     log::debug!("{s}");
     Ok(s)
 }
