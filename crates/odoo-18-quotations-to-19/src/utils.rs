@@ -1,3 +1,4 @@
+pub mod partner_cache;
 pub mod tax_cache;
 
 use odoo_json2::{

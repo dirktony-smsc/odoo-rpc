@@ -14,7 +14,7 @@ use crate::{
         },
     },
     utils::{
-        get_or_create_partner_by_name, remove_slices_from_string, tax_cache::TaxMappingCache,
+        partner_cache::PartnerMappingCache, remove_slices_from_string, tax_cache::TaxMappingCache,
         trim_whitespace_v2,
     },
 };
@@ -28,6 +28,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
     let mut order_lines_mappings = HashMap::<u64, u64>::new();
     let mut current_offset = 0u32;
     let mut tax_cache = TaxMappingCache::default();
+    let mut partners_cache = PartnerMappingCache::default();
     loop {
         let orders = clients
             .odoo_18
@@ -44,23 +45,29 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             let new_order_id = {
                 let new_order = {
                     log::debug!("Getting partner id of {:?}", order.partner_id);
-                    let partner_id = get_or_create_partner_by_name(
-                        &clients.odoo_19,
-                        order.partner_id.name.clone(),
-                    )
-                    .await?;
+                    let partner_id = partners_cache
+                        .get_mapping(
+                            clients,
+                            order.partner_id.id,
+                            Some(order.partner_id.name.clone()),
+                        )
+                        .await?;
                     log::debug!("Getting partner id of {:?}", order.partner_invoice_id);
-                    let partner_invoice_id = get_or_create_partner_by_name(
-                        &clients.odoo_19,
-                        order.partner_invoice_id.name.clone(),
-                    )
-                    .await?;
+                    let partner_invoice_id = partners_cache
+                        .get_mapping(
+                            clients,
+                            order.partner_invoice_id.id,
+                            Some(order.partner_invoice_id.name.clone()),
+                        )
+                        .await?;
                     log::debug!("Getting partner id of {:?}", order.partner_shipping_id);
-                    let partner_shipping_id = get_or_create_partner_by_name(
-                        &clients.odoo_19,
-                        order.partner_shipping_id.name.clone(),
-                    )
-                    .await?;
+                    let partner_shipping_id = partners_cache
+                        .get_mapping(
+                            clients,
+                            order.partner_shipping_id.id,
+                            Some(order.partner_shipping_id.name.clone()),
+                        )
+                        .await?;
                     SalesOrderTo19 {
                         name: order.name.clone(),
                         state: order.state,
