@@ -204,6 +204,18 @@ impl OdooJsonRPCClient {
         )
         .await
     }
+    pub async fn search_read_with_auto_model_name<O>(
+        &self,
+        fields: Vec<String>,
+        domains: Vec<Domain>,
+        pagination: PaginationParam,
+    ) -> Result<Vec<O>, error::Error>
+    where
+        O: DeserializeOwned + ModelName,
+    {
+        self.search_read(O::NAME.into(), domains, fields, pagination)
+            .await
+    }
     pub async fn search_count(
         &self,
         model: String,
