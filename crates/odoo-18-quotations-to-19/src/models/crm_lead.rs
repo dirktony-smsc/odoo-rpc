@@ -77,3 +77,32 @@ pub fn crm_lead_from_odoo_18_fields() -> Vec<String> {
     d.push("type".into());
     d
 }
+
+#[derive(Debug, Serialize, FieldNamesAsSlice)]
+pub struct CrmLeadToOdoo19 {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub type_: TypeCrmLead,
+    pub referred: Option<String>,
+    pub description: Option<String>,
+    pub active: bool,
+
+    pub priority: CrmStagePriorities,
+    pub stage_id: Option<u64>,
+    pub color: u16,
+
+    pub expected_revenue: Option<f32>,
+    pub prorated_revenue: Option<f32>,
+    pub recurring_revenue: Option<f32>,
+    pub recurring_revenue_monthly: Option<f32>,
+    pub recurring_revenue_monthly_prorated: Option<f32>,
+    pub recurring_revenue_prorated: Option<f32>,
+
+    pub date_closed: Option<String>,
+    pub date_automation_last: Option<String>,
+    pub date_open: Option<String>,
+    pub date_conversion: Option<String>,
+    pub date_deadline: Option<String>,
+
+    pub partner_id: Option<u64>,
+}
