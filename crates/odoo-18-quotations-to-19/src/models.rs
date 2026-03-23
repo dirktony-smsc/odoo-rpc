@@ -1,4 +1,6 @@
 pub mod acount_tax;
+pub mod crm_lead;
+pub mod crm_stage;
 pub mod sales_order;
 pub mod sales_order_line;
 

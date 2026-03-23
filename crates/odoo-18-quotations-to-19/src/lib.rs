@@ -26,7 +26,8 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 #[non_exhaustive]
 pub enum Commands {
-    Sales,
+    SaleOrder,
+    CrmLead,
     SomeDebug,
 }
 
@@ -49,19 +50,18 @@ pub async fn run() -> anyhow::Result<()> {
     let limit = cli.limit.unwrap_or(NonZero::new(30).unwrap());
 
     match cli.command {
-        Commands::Sales => {
+        Commands::SaleOrder => {
             transfert::sale_order::run_transfert(&clients, limit).await?;
+        }
+        Commands::CrmLead => {
+            transfert::crm_lead::run_transfert(&clients, limit).await?;
         }
         Commands::SomeDebug => {
             let a = clients
                 .odoo_18
-                .fields_get(
-                    "sale.order.line".into(),
-                    Default::default(),
-                    Default::default(),
-                )
+                .fields_get("crm.lead".into(), Default::default(), Default::default())
                 .await?;
-            fs::write("./target/sale.order.line.toml", toml::to_string(&a)?)?;
+            fs::write("./target/crm.lead.toml", toml::to_string(&a)?)?;
         }
     }
 
