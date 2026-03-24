@@ -21,8 +21,15 @@ pub struct Odoo19Config {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct SslConfig {
+    #[serde(default)]
+    pub additional_certs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 #[non_exhaustive]
 pub struct Config {
     pub odoo_18: Odoo18Config,
     pub odoo_19: Odoo19Config,
+    pub ssl: Option<SslConfig>,
 }

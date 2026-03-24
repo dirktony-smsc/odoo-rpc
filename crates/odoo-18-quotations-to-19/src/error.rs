@@ -9,4 +9,6 @@ pub enum Error {
     NothingCreated,
     SerdeJson(#[from] serde_json::Error),
     Regex(#[from] regex::Error),
+    StdIo(#[from] std::io::Error),
+    Reqwest(#[from] reqwest::Error),
 }

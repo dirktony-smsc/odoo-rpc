@@ -1,5 +1,8 @@
+use std::{fs::File, io::Read, path::Path};
+
 use odoo_json2::OdooJson2Client;
 use odoo_rpc::OdooJsonRPCClient;
+use reqwest::{Certificate, ClientBuilder};
 
 use crate::{config::Config, error};
 
@@ -11,6 +14,18 @@ pub struct Clients {
 
 impl Clients {
     pub async fn from_config(config: Config) -> Result<Self, error::Error> {
+        let mut reqwest_builder = ClientBuilder::new();
+        if let Some(ssl) = config.ssl {
+            for cert_path in ssl.additional_certs {
+                let cert_path = Path::new(&cert_path).canonicalize()?;
+                log::debug!("importing cert `{:?}`", cert_path);
+                let mut buf = Vec::<u8>::new();
+                File::open(cert_path)?.read_to_end(&mut buf)?;
+                for cert in Certificate::from_pem_bundle(&buf)? {
+                    reqwest_builder = reqwest_builder.add_root_certificate(cert);
+                }
+            }
+        }
         let odoo_18: OdooJsonRPCClient = {
             let odoo_18_cfg = config.odoo_18;
             OdooJsonRPCClient::new(
@@ -35,7 +50,7 @@ impl Clients {
             if let Some(user_agent) = odoo_19_cfg.user_agent {
                 builder = builder.user_agent(user_agent);
             }
-            builder.build()?
+            builder.reqwest_client_builder(reqwest_builder).build()?
         };
         Ok(Clients { odoo_18, odoo_19 })
     }
