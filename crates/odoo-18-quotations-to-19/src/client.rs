@@ -21,9 +21,8 @@ impl Clients {
                 log::debug!("importing cert `{:?}`", cert_path);
                 let mut buf = Vec::<u8>::new();
                 File::open(cert_path)?.read_to_end(&mut buf)?;
-                for cert in Certificate::from_pem_bundle(&buf)? {
-                    reqwest_builder = reqwest_builder.add_root_certificate(cert);
-                }
+                reqwest_builder =
+                    reqwest_builder.tls_certs_merge(Certificate::from_pem_bundle(&buf)?);
             }
         }
         let odoo_18: OdooJsonRPCClient = {
