@@ -41,6 +41,14 @@ use crate::{
 static DEFAULT_USER_AGENT: LazyLock<String> =
     LazyLock::new(|| format!("odoo-json2-rs/{}", env!("CARGO_PKG_VERSION")));
 
+// TODO 
+/*
+#[derive(Debug, Default)]
+pub struct PathProviders {
+    pub version: Option<String>,
+    pub call_model_metho
+}
+    */
 #[derive(Debug, Default)]
 #[must_use]
 pub struct OdooJson2ClientBuilder {
