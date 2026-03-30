@@ -22,4 +22,4 @@ clap = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
 derive_more = { workspace = true, features = ["display"] }
 regex = { workspace = true }
-reqwest = { workspace = true, features = ["rustls"] }
+reqwest = { workspace = true, features = ["rustls", "zstd", "gzip", "charset", "deflate", "http2", "brotli"] }
