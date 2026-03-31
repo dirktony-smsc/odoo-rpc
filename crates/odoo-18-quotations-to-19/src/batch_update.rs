@@ -6,7 +6,7 @@ use odoo_json2::{
     OdooJson2Client,
     base_methods::{field_get::FieldsGetParam, search::SearchParam, write::WriteParam},
 };
-use odoo_rpc::OdooJsonRPCClient;
+use odoo_rpc::{OdooJsonRPCClient, utils::fields_get::FieldsGetAttributes};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -132,6 +132,87 @@ impl BatchUpdateArg {
         Ok(())
     }
     async fn run_throught_odoo_18(self, client: &OdooJsonRPCClient) -> anyhow::Result<()> {
+        let value: serde_json::Value = {
+            let field_get = client
+                .fields_get(
+                    self.model.clone(),
+                    vec![self.field.clone()],
+                    vec![FieldsGetAttributes::Type],
+                )
+                .await?;
+            match field_get
+                .get(&self.field)
+                .and_then(|o| {
+                    o.get(&odoo_rpc::utils::fields_get::FieldsGetAttributes::Type)
+                        .cloned()
+                })
+                .ok_or(anyhow!("Cannot find {} field", self.field))?
+                .as_str()
+            {
+                "integer" | "float" | "monetary" | "many2one" => {
+                    serde_json::Value::Number(self.value.parse::<serde_json::Number>()?)
+                }
+                "char" | "text" | "date" | "selection" | "html" => {
+                    serde_json::Value::String(self.value.clone())
+                }
+                "one2many" | "many2many" => {
+                    serde_json::to_value(serde_json::from_str::<Vec<CommandRepr>>(&self.value)?)?
+                }
+                s => return Err(anyhow!("type {s} for {} is not supported", self.field)),
+            }
+        };
+        if self.ids.is_empty() {
+            warn!("No ids given. Updating everything...");
+            let count = client
+                .search_count(self.model.clone(), Default::default())
+                .await?;
+            let mut offset = 0u32;
+            let limit = self.limit();
+            loop {
+                debug!("Fetching ({offset} - {limit}) of {count}");
+                let ids = client
+                    .search(
+                        self.model.clone(),
+                        Default::default(),
+                        PaginationParam {
+                            offset: Some(offset),
+                            limit: Some(limit),
+                        },
+                    )
+                    .await?;
+                for id in &ids {
+                    client
+                        .update(
+                            self.model.clone(),
+                            *id,
+                            json!({
+                                self.field.clone(): value.clone()
+                            }),
+                        )
+                        .await?;
+                }
+                {
+                    let next_offset = offset + limit;
+                    if (next_offset as u64) > count {
+                        break;
+                    } else {
+                        offset = next_offset;
+                    }
+                }
+            }
+        } else {
+            for id in &self.ids {
+                client
+                    .update(
+                        self.model.clone(),
+                        *id,
+                        json!({
+                            self.field.clone(): value.clone()
+                        }),
+                    )
+                    .await?;
+            }
+        }
         todo!()
     }
 }
