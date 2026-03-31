@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use odoo_api_commons::Domain;
 use odoo_json2::base_methods::search::SearchParam;
 
-use crate::{client::Clients, error, models::acount_tax::AccountTax1};
+use crate::{client::Clients, error, models::account_tax::AccountTax1};
 
 #[derive(Debug, Default)]
 pub struct TaxMappingCache(HashMap<u64, u64>);
