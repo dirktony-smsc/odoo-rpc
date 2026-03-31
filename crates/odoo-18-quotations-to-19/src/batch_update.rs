@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use anyhow::{Ok, anyhow};
 use clap::{Args, ValueEnum};
 use log::{debug, trace, warn};
@@ -27,14 +29,14 @@ pub struct BatchUpdateArg {
     #[arg(long)]
     ids: Vec<u64>,
     #[arg(long, short)]
-    limit: Option<u32>,
+    limit: Option<NonZero<u32>>,
     #[arg(long)]
     odoo_version: Option<BatchUpdateOdooVersion>,
 }
 
 impl BatchUpdateArg {
     fn limit(&self) -> u32 {
-        self.limit.unwrap_or(30)
+        self.limit.map(|d| d.get()).unwrap_or(30)
     }
     pub async fn run(self, client: &Clients) -> anyhow::Result<()> {
         match self.odoo_version.unwrap_or_default() {
