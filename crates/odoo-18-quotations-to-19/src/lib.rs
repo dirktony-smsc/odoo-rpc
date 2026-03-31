@@ -1,3 +1,4 @@
+pub mod batch_update;
 pub mod client;
 pub mod config;
 pub mod error;
@@ -10,6 +11,8 @@ use std::{fs, num::NonZero};
 use clap::{Parser, Subcommand};
 
 use config::Config;
+
+use crate::batch_update::BatchUpdateArg;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
@@ -28,6 +31,7 @@ pub struct Cli {
 pub enum Commands {
     SaleOrder,
     CrmLead,
+    BatchUpdate(BatchUpdateArg),
     SomeDebug,
 }
 
@@ -63,7 +67,22 @@ pub async fn run() -> anyhow::Result<()> {
                 .await?;
             fs::write("./target/crm.lead.toml", toml::to_string(&a)?)?;
         }
+        Commands::BatchUpdate(arg) => {
+            arg.run(&clients).await?;
+        }
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::CommandFactory;
+
+    use crate::Cli;
+
+    #[test]
+    fn verify_cli() {
+        Cli::command().debug_assert();
+    }
 }
