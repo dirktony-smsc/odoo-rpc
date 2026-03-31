@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Ref: https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#odoo.fields.Command
 #[derive(Debug, Clone)]
@@ -13,8 +13,8 @@ pub enum Command<T> {
     Set { ids: Vec<u64> },
 }
 
-#[derive(Serialize)]
-struct CommandRepr(u8, u64, serde_json::Value);
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct CommandRepr(u8, u64, serde_json::Value);
 
 impl<T> Serialize for Command<T>
 where
