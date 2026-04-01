@@ -77,7 +77,10 @@ pub async fn run() -> anyhow::Result<()> {
                     },
                 )
                 .await?;
-            fs::write("./target/crm.lead.toml", toml::to_string(&a)?)?;
+            fs::write(
+                "./target/account.journal.json",
+                serde_json::to_string_pretty(&a)?,
+            )?;
         }
         Commands::BatchUpdate(arg) => {
             arg.run(&clients).await?;
