@@ -64,3 +64,23 @@ pub struct AccountMoveLineFromOdoo18 {
 impl ModelName for AccountMoveLineFromOdoo18 {
     const NAME: &'static str = ACCOUNT_MOVE_LINE_MODEL_NAME;
 }
+
+#[derive(Debug, Serialize, FieldNamesAsSlice)]
+pub struct AccountMoveLineToOdoo19 {
+    // Accounting fields
+    pub move_id: u64,
+
+    pub debit: Option<f32>,
+    pub credit: Option<f32>,
+
+    pub currency_id: Option<u64>,
+    pub partner_id: Option<u64>,
+
+    pub display_type: AccountMoveLineDisplayType,
+    pub product_id: Option<u64>,
+    pub quantity: f32,
+    pub price_unit: f32,
+    pub discount: Option<f32>,
+
+    pub is_refund: bool,
+}
