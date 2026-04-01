@@ -118,3 +118,25 @@ pub fn account_move_from_odoo_18_fields() -> Vec<String> {
 impl ModelName for AccountMoveFromOdoo18 {
     const NAME: &'static str = ACCOUNT_MOVE_MODEL_NAME;
 }
+
+#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+pub struct AccountMoveToOdoo19 {
+    // Accounting fields
+    pub name: String,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub name_placeholder: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false", rename = "ref")]
+    #[field_names_as_slice(skip)]
+    pub ref_: Option<String>,
+    pub date: String,
+    pub state: AccountMoveState,
+    pub move_type: AccountMoveType,
+    pub is_storno: bool,
+    pub journal_id: u64,
+
+    pub auto_post: AutoPostAccountMove,
+    pub currency_id: u64,
+
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub partner_id: Option<u64>,
+}
