@@ -119,13 +119,11 @@ impl ModelName for AccountMoveFromOdoo18 {
     const NAME: &'static str = ACCOUNT_MOVE_MODEL_NAME;
 }
 
-#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+#[derive(Debug, Serialize, FieldNamesAsSlice)]
 pub struct AccountMoveToOdoo19 {
     // Accounting fields
     pub name: String,
-    #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub name_placeholder: Option<String>,
-    #[serde(deserialize_with = "deserialize_and_default_if_false", rename = "ref")]
     #[field_names_as_slice(skip)]
     pub ref_: Option<String>,
     pub date: String,
@@ -137,6 +135,5 @@ pub struct AccountMoveToOdoo19 {
     pub auto_post: AutoPostAccountMove,
     pub currency_id: u64,
 
-    #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub partner_id: Option<u64>,
 }
