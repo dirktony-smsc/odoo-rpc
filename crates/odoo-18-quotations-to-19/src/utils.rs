@@ -70,6 +70,13 @@ pub async fn get_or_create_partner_by_name(
     get_or_create_by_name(client, "res.partner".into(), name).await
 }
 
+pub async fn get_or_create_currency_by_name(
+    client: &OdooJson2Client,
+    name: String,
+) -> Result<u64, error::Error> {
+    get_or_create_by_name(client, "res.currency".into(), name).await
+}
+
 pub fn remove_slices_from_string(i: &str) -> Result<String, error::Error> {
     let s: String = Regex::new(r"\[[^)]*\]")?.replace(i, "").into();
     log::debug!("{s}");
