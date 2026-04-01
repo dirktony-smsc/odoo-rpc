@@ -1,7 +1,7 @@
 use std::{collections::HashMap, num::NonZero};
 
 use odoo_api_commons::{Command, Domain, PaginationParam, domain::operators::EQUALS_TO};
-use odoo_json2::base_methods::{create::CreateParam, name_search::NameSearchParam};
+use odoo_json2::base_methods::create::CreateParam;
 use odoo_rpc::ModelName;
 
 use crate::{
@@ -14,8 +14,9 @@ use crate::{
         },
     },
     utils::{
-        partner_cache::PartnerMappingCache, remove_slices_from_string, tax_cache::TaxMappingCache,
-        trim_whitespace_v2,
+        partner_cache::PartnerMappingCache,
+        product::{get_opt_product_template_by_name, get_product_by_name},
+        tax_cache::TaxMappingCache,
     },
 };
 
@@ -132,23 +133,8 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 product_id: if let Some(product) = order_line.product_id.as_ref() {
                                     log::debug!("Getting product id of {:?}", product);
                                     Some(
-                                        clients
-                                            .odoo_19
-                                            .name_search(
-                                                "product.product".into(),
-                                                NameSearchParam {
-                                                    name: trim_whitespace_v2(
-                                                        &remove_slices_from_string(&product.name)?,
-                                                    )
-                                                    .into(),
-                                                    limit: Some(1),
-                                                    ..Default::default()
-                                                },
-                                            )
-                                            .await?
-                                            .first()
-                                            .ok_or(error::Error::NotFound)?
-                                            .0,
+                                        get_product_by_name(&clients.odoo_19, &product.name)
+                                            .await?,
                                     )
                                 } else {
                                     None
@@ -160,19 +146,11 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                         "Getting product template id of {:?}",
                                         product_template
                                     );
-                                    clients
-                                        .odoo_19
-                                        .name_search(
-                                            "product.template".into(),
-                                            NameSearchParam {
-                                                name: product_template.name.clone().into(),
-                                                limit: Some(1),
-                                                ..Default::default()
-                                            },
-                                        )
-                                        .await?
-                                        .first()
-                                        .map(|(id, _)| *id)
+                                    get_opt_product_template_by_name(
+                                        &clients.odoo_19,
+                                        &product_template.name,
+                                    )
+                                    .await?
                                 } else {
                                     None
                                 },

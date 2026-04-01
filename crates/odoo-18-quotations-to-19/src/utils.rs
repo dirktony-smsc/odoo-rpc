@@ -1,6 +1,7 @@
 pub mod account_journal_cache;
 pub mod crm_stage_cache;
 pub mod partner_cache;
+pub mod product;
 pub mod tax_cache;
 
 use odoo_json2::{
