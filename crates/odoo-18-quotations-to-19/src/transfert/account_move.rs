@@ -1,13 +1,19 @@
 use std::num::NonZero;
 
 use log::{debug, trace};
-use odoo_api_commons::{Domain, PaginationParam, domain::operators::NOT_EQUALS_TO};
+use odoo_api_commons::{
+    Domain, PaginationParam,
+    domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
+};
 use odoo_rpc::ModelName;
 
 use crate::{
     client::Clients,
     error,
-    models::account_move::{AccountMoveFromOdoo18, account_move_from_odoo_18_fields},
+    models::{
+        account_move::{AccountMoveFromOdoo18, account_move_from_odoo_18_fields},
+        account_move_line::AccountMoveLineFromOdoo18,
+    },
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -44,6 +50,39 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             .await?;
         for _move in account_moves {
             debug!("Account move {:#?} (ID: {})", _move.name, _move.id);
+
+            let account_move_line_domain = vec![Domain::condition("move_id", EQUALS_TO, _move.id)];
+            let count = clients
+                .odoo_18
+                .search_count(
+                    AccountMoveLineFromOdoo18::NAME.into(),
+                    account_move_line_domain.clone(),
+                )
+                .await?;
+            let mut current_offset = 0u32;
+            loop {
+                let lines = clients
+                    .odoo_18
+                    .search_read_with_auto_model_name_and_field_names::<AccountMoveLineFromOdoo18>(
+                        account_move_line_domain.clone(),
+                        PaginationParam {
+                            offset: Some(current_offset),
+                            limit: Some(limit),
+                        },
+                    )
+                    .await?;
+                for line in lines {
+                    debug!("Account move line {:?}", line);
+                }
+                {
+                    let next_offset = current_offset + limit;
+                    if (next_offset as u64) < count {
+                        current_offset = next_offset;
+                    } else {
+                        break;
+                    }
+                }
+            }
         }
         {
             let next_offset = current_offset + limit;

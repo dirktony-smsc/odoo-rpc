@@ -1,4 +1,5 @@
 pub mod account_move;
+pub mod account_move_line;
 pub mod account_tax;
 pub mod crm_lead;
 pub mod crm_stage;
