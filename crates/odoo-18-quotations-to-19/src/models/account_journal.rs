@@ -3,7 +3,7 @@ use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
-pub const ACCOUNT_JOURNAL_LINE_MODEL_NAME: &str = "account.journal";
+pub const ACCOUNT_JOURNAL_MODEL_NAME: &str = "account.journal";
 
 #[derive(
     Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
@@ -77,7 +77,7 @@ pub fn account_journal_from_odoo_18_fields() -> Vec<String> {
 }
 
 impl ModelName for AccountJournalFromOdoo18 {
-    const NAME: &'static str = ACCOUNT_JOURNAL_LINE_MODEL_NAME;
+    const NAME: &'static str = ACCOUNT_JOURNAL_MODEL_NAME;
 }
 
 #[derive(Debug, Serialize, FieldNamesAsSlice)]
