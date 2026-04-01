@@ -57,6 +57,7 @@ pub struct AccountJournalFromOdoo18 {
     #[serde(default)]
     pub active: bool,
     #[field_names_as_slice(skip)]
+    #[serde(rename = "type")]
     pub type_: AccountJournalType,
     pub autocheck_on_post: bool,
     pub restrict_mode_hash_table: bool,
