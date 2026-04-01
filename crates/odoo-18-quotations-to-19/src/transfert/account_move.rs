@@ -1,6 +1,6 @@
 use std::num::NonZero;
 
-use log::{debug, trace};
+use log::{debug, info, trace};
 use odoo_api_commons::{
     Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
@@ -31,7 +31,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
         )
         .await?;
 
-    debug!("{count} account move found...");
+    info!("{count} account move found...");
     trace!("Using pagination!");
 
     let mut current_offset = 0u32;
@@ -59,6 +59,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     account_move_line_domain.clone(),
                 )
                 .await?;
+            info!("{count} lines for {}", _move.name);
             let mut current_offset = 0u32;
             loop {
                 let lines = clients
@@ -78,6 +79,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     let next_offset = current_offset + limit;
                     if (next_offset as u64) < count {
                         current_offset = next_offset;
+                        trace!("Loading next batch of account move line...");
                     } else {
                         break;
                     }
@@ -88,6 +90,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             let next_offset = current_offset + limit;
             if (next_offset as u64) < count {
                 current_offset = next_offset;
+                trace!("Loading next batch of account moves...");
             } else {
                 break;
             }

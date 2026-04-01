@@ -45,12 +45,14 @@ pub struct AccountMoveLineFromOdoo18 {
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub credit: Option<f32>,
 
-    pub currency_id: Many2OneRepr,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub currency_id: Option<Many2OneRepr>,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub partner_id: Option<Many2OneRepr>,
 
     pub display_type: AccountMoveLineDisplayType,
-    pub product_id: Many2OneRepr,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub product_id: Option<Many2OneRepr>,
     pub quantity: f32,
     pub price_unit: f32,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
