@@ -5,16 +5,23 @@ use odoo_api_commons::{
     Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
 };
+use odoo_json2::base_methods::create::CreateParam;
 use odoo_rpc::ModelName;
 
 use crate::{
     client::Clients,
     error,
     models::{
-        account_move::{AccountMoveFromOdoo18, account_move_from_odoo_18_fields},
+        account_move::{
+            ACCOUNT_MOVE_MODEL_NAME, AccountMoveFromOdoo18, AccountMoveToOdoo19,
+            account_move_from_odoo_18_fields,
+        },
         account_move_line::AccountMoveLineFromOdoo18,
     },
-    utils::partner_cache::PartnerMappingCache,
+    utils::{
+        account_journal_cache::AccountJournalMappingCache, get_or_create_currency_by_name,
+        partner_cache::PartnerMappingCache,
+    },
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -36,7 +43,8 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
     trace!("Using pagination!");
 
     let mut current_offset = 0u32;
-    let partner_cache = PartnerMappingCache::default();
+    let mut partner_cache = PartnerMappingCache::default();
+    let mut journal_cache = AccountJournalMappingCache::default();
 
     loop {
         let account_moves = clients
@@ -52,6 +60,51 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             .await?;
         for _move in account_moves {
             debug!("Account move {:#?} (ID: {})", _move.name, _move.id);
+
+            let new_move_id = {
+                clients
+                    .odoo_19
+                    .create(
+                        ACCOUNT_MOVE_MODEL_NAME.into(),
+                        CreateParam {
+                            vals_list: vec![AccountMoveToOdoo19 {
+                                name: _move.name.clone(),
+                                name_placeholder: _move.name_placeholder,
+                                ref_: _move.ref_,
+                                date: _move.date,
+                                state: _move.state,
+                                move_type: _move.move_type,
+                                is_storno: _move.is_storno,
+                                journal_id: journal_cache
+                                    .get_mapping(clients, _move.journal_id.id)
+                                    .await?,
+                                auto_post: _move.auto_post,
+                                currency_id: get_or_create_currency_by_name(
+                                    &clients.odoo_19,
+                                    _move.currency_id.name,
+                                )
+                                .await?,
+                                partner_id: if let Some(partner_id) = _move.partner_id {
+                                    Some(
+                                        partner_cache
+                                            .get_mapping(
+                                                clients,
+                                                partner_id.id,
+                                                Some(partner_id.name),
+                                            )
+                                            .await?,
+                                    )
+                                } else {
+                                    None
+                                },
+                            }],
+                        },
+                    )
+                    .await?
+                    .into_iter()
+                    .next()
+                    .ok_or(error::Error::NothingCreated)?
+            };
 
             let account_move_line_domain = vec![Domain::condition("move_id", EQUALS_TO, _move.id)];
             let count = clients
