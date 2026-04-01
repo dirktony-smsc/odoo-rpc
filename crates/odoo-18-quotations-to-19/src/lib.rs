@@ -11,8 +11,12 @@ use std::{fs, num::NonZero};
 use clap::{Parser, Subcommand};
 
 use config::Config;
+use odoo_api_commons::PaginationParam;
 
-use crate::batch_update::BatchUpdateArg;
+use crate::{
+    batch_update::BatchUpdateArg,
+    models::account_journal::{AccountJournalFromOdoo18, account_journal_from_odoo_18_fields},
+};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
@@ -64,7 +68,14 @@ pub async fn run() -> anyhow::Result<()> {
         Commands::SomeDebug => {
             let a = clients
                 .odoo_18
-                .fields_get("crm.lead".into(), Default::default(), Default::default())
+                .search_read_with_auto_model_name::<AccountJournalFromOdoo18>(
+                    account_journal_from_odoo_18_fields(),
+                    Default::default(),
+                    PaginationParam {
+                        limit: Some(10),
+                        ..Default::default()
+                    },
+                )
                 .await?;
             fs::write("./target/crm.lead.toml", toml::to_string(&a)?)?;
         }
