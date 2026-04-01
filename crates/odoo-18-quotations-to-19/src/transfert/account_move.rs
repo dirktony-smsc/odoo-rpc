@@ -14,6 +14,7 @@ use crate::{
         account_move::{AccountMoveFromOdoo18, account_move_from_odoo_18_fields},
         account_move_line::AccountMoveLineFromOdoo18,
     },
+    utils::partner_cache::PartnerMappingCache,
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
@@ -35,6 +36,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
     trace!("Using pagination!");
 
     let mut current_offset = 0u32;
+    let partner_cache = PartnerMappingCache::default();
 
     loop {
         let account_moves = clients
