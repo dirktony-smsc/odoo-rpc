@@ -31,6 +31,7 @@ pub struct Cli {
 pub enum Commands {
     SaleOrder,
     CrmLead,
+    AccountMove,
     BatchUpdate(BatchUpdateArg),
     SomeDebug,
 }
@@ -69,6 +70,9 @@ pub async fn run() -> anyhow::Result<()> {
         }
         Commands::BatchUpdate(arg) => {
             arg.run(&clients).await?;
+        }
+        Commands::AccountMove => {
+            transfert::account_move::run_transfert(&clients, limit).await?;
         }
     }
 
