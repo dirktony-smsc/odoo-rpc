@@ -85,8 +85,7 @@ pub struct AccountMoveFromOdoo18 {
     pub id: u64,
 
     // Accounting fields
-    #[serde(deserialize_with = "deserialize_and_default_if_false")]
-    pub name: Option<String>,
+    pub name: String,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub name_placeholder: Option<String>,
     #[serde(deserialize_with = "deserialize_and_default_if_false", rename = "ref")]
@@ -102,6 +101,8 @@ pub struct AccountMoveFromOdoo18 {
 
     pub auto_post: AutoPostAccountMove,
     pub currency_id: Many2OneRepr,
+
+    pub partner_id: Many2OneRepr,
 }
 
 pub fn account_move_from_odoo_18_fields() -> Vec<String> {
