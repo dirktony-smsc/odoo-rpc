@@ -32,7 +32,7 @@ impl From<ModelMethodCallError> for Error {
 pub struct ModelMethodCallError {
     pub name: String,
     pub message: String,
-    pub arguments: (String, u16),
+    pub arguments: serde_json::Value,
     pub context: HashMap<String, serde_json::Value>,
     pub debug: Option<String>,
 }
