@@ -2,7 +2,7 @@ use std::num::NonZero;
 
 use log::{debug, info, trace, warn};
 use odoo_api_commons::{
-    Domain, PaginationParam,
+    Command, Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
 };
 use odoo_json2::base_methods::{create::CreateParam, write::WriteParam};
@@ -22,6 +22,7 @@ use crate::{
         },
     },
     utils::{
+        account_account_cache::AccountAccountMappingCache,
         account_journal_cache::AccountJournalMappingCache, get_or_create_currency_by_name,
         partner_cache::PartnerMappingCache, product::get_product_by_name,
     },
@@ -48,6 +49,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
     let mut current_offset = 0u32;
     let mut partner_cache = PartnerMappingCache::default();
     let mut journal_cache = AccountJournalMappingCache::default();
+    let mut account_cache = AccountAccountMappingCache::default();
 
     loop {
         let account_moves = clients
@@ -164,7 +166,14 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         price_unit: line.price_unit,
                         discount: line.discount,
                         is_refund: line.is_refund,
-                        account_id: Default::default(),
+                        account_id: vec![
+                            account_cache
+                                .get_mapping(clients, line.account_id.id)
+                                .await?,
+                        ]
+                        .into_iter()
+                        .map(|id| Command::Link { id })
+                        .collect(),
                     });
                 }
                 trace!("to import {:#?}", to_import_lines);

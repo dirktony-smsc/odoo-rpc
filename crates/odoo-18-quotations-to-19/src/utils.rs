@@ -1,3 +1,4 @@
+pub mod account_account_cache;
 pub mod account_journal_cache;
 pub mod crm_stage_cache;
 pub mod partner_cache;
