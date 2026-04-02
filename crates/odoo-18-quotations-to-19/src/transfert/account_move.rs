@@ -5,8 +5,9 @@ use odoo_api_commons::{
     Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
 };
-use odoo_json2::base_methods::create::CreateParam;
+use odoo_json2::base_methods::{create::CreateParam, write::WriteParam};
 use odoo_rpc::ModelName;
+use serde_json::json;
 
 use crate::{
     client::Clients,
@@ -74,7 +75,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                                 name_placeholder: _move.name_placeholder,
                                 ref_: _move.ref_,
                                 date: _move.date,
-                                state: _move.state,
+                                state: Default::default(),
                                 move_type: _move.move_type,
                                 is_storno: _move.is_storno,
                                 journal_id: journal_cache
@@ -192,6 +193,21 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         break;
                     }
                 }
+            }
+            {
+                clients
+                    .odoo_19
+                    .write(
+                        ACCOUNT_MOVE_MODEL_NAME.into(),
+                        WriteParam {
+                            ids: [new_move_id].into(),
+                            vals: json!({
+                                "state": _move.state
+                            }),
+                        },
+                    )
+                    .await?;
+                log::debug!("updating state")
             }
         }
         {
