@@ -9,11 +9,23 @@ use crate::models::Many2OneRepr;
 pub const ACCOUNT_MOVE_MODEL_NAME: &str = "account.move";
 
 #[derive(
-    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
+    Debug,
+    Clone,
+    Copy,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Display,
+    Default,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum PayementStateSelection {
     #[display("Not Paid")]
+    #[default]
     NotPaid,
     #[display("In Payment")]
     InPayment,
@@ -30,11 +42,23 @@ pub enum PayementStateSelection {
 }
 
 #[derive(
-    Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, Display,
+    Debug,
+    Clone,
+    Copy,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Display,
+    Default,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum AccountMoveState {
     #[display("Draft")]
+    #[default]
     Draft,
     #[display("Posted")]
     Posted,
