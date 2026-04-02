@@ -1,6 +1,6 @@
 use std::num::NonZero;
 
-use log::{debug, info, trace};
+use log::{debug, info, trace, warn};
 use odoo_api_commons::{
     Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
@@ -16,11 +16,13 @@ use crate::{
             ACCOUNT_MOVE_MODEL_NAME, AccountMoveFromOdoo18, AccountMoveToOdoo19,
             account_move_from_odoo_18_fields,
         },
-        account_move_line::AccountMoveLineFromOdoo18,
+        account_move_line::{
+            ACCOUNT_MOVE_LINE_MODEL_NAME, AccountMoveLineFromOdoo18, AccountMoveLineToOdoo19,
+        },
     },
     utils::{
         account_journal_cache::AccountJournalMappingCache, get_or_create_currency_by_name,
-        partner_cache::PartnerMappingCache,
+        partner_cache::PartnerMappingCache, product::get_product_by_name,
     },
 };
 
@@ -127,9 +129,60 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         },
                     )
                     .await?;
+                let mut to_import_lines =
+                    Vec::<AccountMoveLineToOdoo19>::with_capacity(lines.len());
                 for line in lines {
-                    debug!("Account move line {:?}", line);
+                    to_import_lines.push(AccountMoveLineToOdoo19 {
+                        move_id: new_move_id,
+                        debit: line.debit,
+                        credit: line.credit,
+                        currency_id: if let Some(currency) = line.currency_id {
+                            Some(
+                                get_or_create_currency_by_name(&clients.odoo_19, currency.name)
+                                    .await?,
+                            )
+                        } else {
+                            None
+                        },
+                        partner_id: if let Some(partner) = line.partner_id {
+                            Some(
+                                partner_cache
+                                    .get_mapping(clients, partner.id, Some(partner.name))
+                                    .await?,
+                            )
+                        } else {
+                            None
+                        },
+                        display_type: line.display_type,
+                        product_id: if let Some(product) = line.product_id {
+                            Some(get_product_by_name(&clients.odoo_19, &product.name).await?)
+                        } else {
+                            None
+                        },
+                        quantity: line.price_unit,
+                        price_unit: line.price_unit,
+                        discount: line.discount,
+                        is_refund: line.is_refund,
+                    });
                 }
+                if to_import_lines.is_empty() {
+                    warn!("No account lines needs to be imported. Moving on...");
+                } else {
+                    let new_ids = clients
+                        .odoo_19
+                        .create(
+                            ACCOUNT_MOVE_LINE_MODEL_NAME.into(),
+                            CreateParam {
+                                vals_list: to_import_lines,
+                            },
+                        )
+                        .await?;
+                    if new_ids.is_empty() {
+                        return Err(error::Error::NothingCreated);
+                    } else {
+                        log::info!("inserted {:?} line for {}", new_ids, new_move_id);
+                    }
+                };
                 {
                     let next_offset = current_offset + limit;
                     if (next_offset as u64) < count {
