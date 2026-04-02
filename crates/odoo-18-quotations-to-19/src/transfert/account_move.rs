@@ -166,9 +166,11 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         price_unit: line.price_unit,
                         discount: line.discount,
                         is_refund: line.is_refund,
-                        account_id: account_cache
-                            .get_mapping(clients, line.account_id.id)
-                            .await?,
+                        account_id: if let Some(account) = line.account_id {
+                            Some(account_cache.get_mapping(clients, account.id).await?)
+                        } else {
+                            None
+                        },
                     });
                 }
                 trace!("to import {:#?}", to_import_lines);
