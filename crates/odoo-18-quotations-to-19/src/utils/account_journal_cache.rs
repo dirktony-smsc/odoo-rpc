@@ -3,14 +3,10 @@ use std::collections::HashMap;
 use crate::{
     client::Clients,
     error,
-    models::{
-        IdNameRepr,
-        account_journal::{
-            ACCOUNT_JOURNAL_MODEL_NAME, AccountJournalFromOdoo18, AccountJournalToOdoo19,
-            account_journal_from_odoo_18_fields,
-        },
+    models::account_journal::{
+        ACCOUNT_JOURNAL_MODEL_NAME, AccountJournalFromOdoo18, AccountJournalToOdoo19,
+        account_journal_from_odoo_18_fields,
     },
-    utils::get_or_create_by_name,
 };
 
 use odoo_api_commons::{Domain, PaginationParam, domain::operators::EQUALS_TO};
@@ -85,28 +81,21 @@ pub async fn get_or_create_account_journal_from_18_to_19(
     {
         Ok(id)
     } else {
-        clients
-            .odoo_19
-            .create(
-                ACCOUNT_JOURNAL_MODEL_NAME.into(),
-                CreateParam {
-                    vals_list: vec![AccountJournalToOdoo19 {
-                        name: journal_from_odoo_18.name,
-                        code: journal_from_odoo_18.code,
-                        active: journal_from_odoo_18.active,
-                        type_: journal_from_odoo_18.type_,
-                        autocheck_on_post: journal_from_odoo_18.autocheck_on_post,
-                        restrict_mode_hash_table: journal_from_odoo_18.restrict_mode_hash_table,
-                        sequence: journal_from_odoo_18.sequence,
-                        invoice_reference_type: journal_from_odoo_18.invoice_reference_type,
-                        invoice_reference_model: journal_from_odoo_18.invoice_reference_model,
-                    }],
-                },
-            )
-            .await?
-            .into_iter()
-            .next()
-            .ok_or(error::Error::NothingCreated)
+        create_account_journal_to_odoo19(
+            &clients.odoo_19,
+            AccountJournalToOdoo19 {
+                name: journal_from_odoo_18.name,
+                code: journal_from_odoo_18.code,
+                active: journal_from_odoo_18.active,
+                type_: journal_from_odoo_18.type_,
+                autocheck_on_post: journal_from_odoo_18.autocheck_on_post,
+                restrict_mode_hash_table: journal_from_odoo_18.restrict_mode_hash_table,
+                sequence: journal_from_odoo_18.sequence,
+                invoice_reference_type: journal_from_odoo_18.invoice_reference_type,
+                invoice_reference_model: journal_from_odoo_18.invoice_reference_model,
+            },
+        )
+        .await
     }
 }
 
