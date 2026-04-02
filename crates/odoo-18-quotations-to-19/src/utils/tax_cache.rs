@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use odoo_api_commons::Domain;
 use odoo_json2::base_methods::search::SearchParam;
@@ -6,7 +6,7 @@ use odoo_json2::base_methods::search::SearchParam;
 use crate::{client::Clients, error, models::account_tax::AccountTax1};
 
 #[derive(Debug, Default)]
-pub struct TaxMappingCache(HashMap<u64, u64>);
+pub struct TaxMappingCache(BTreeMap<u64, u64>);
 
 impl TaxMappingCache {
     pub async fn get_mapping(
@@ -15,10 +15,10 @@ impl TaxMappingCache {
         tax_from_18: u64,
     ) -> Result<u64, error::Error> {
         match self.0.entry(tax_from_18) {
-            std::collections::hash_map::Entry::Occupied(occupied_entry) => {
+            std::collections::btree_map::Entry::Occupied(occupied_entry) => {
                 Ok(*occupied_entry.get())
             }
-            std::collections::hash_map::Entry::Vacant(vacant_entry) => {
+            std::collections::btree_map::Entry::Vacant(vacant_entry) => {
                 let tax_entry_from_18 = clients
                     .odoo_18
                     .read_with_auto_model_name_and_field_names::<AccountTax1>(vec![tax_from_18])

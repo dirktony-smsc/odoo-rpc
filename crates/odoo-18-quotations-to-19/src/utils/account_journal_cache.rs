@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::{
     client::Clients,
@@ -100,7 +100,7 @@ pub async fn get_or_create_account_journal_from_18_to_19(
 }
 
 #[derive(Debug, Default)]
-pub struct AccountJournalMappingCache(HashMap<u64, u64>);
+pub struct AccountJournalMappingCache(BTreeMap<u64, u64>);
 
 impl AccountJournalMappingCache {
     pub async fn get_mapping(
@@ -109,10 +109,10 @@ impl AccountJournalMappingCache {
         journal_id_from_18: u64,
     ) -> Result<u64, error::Error> {
         match self.0.entry(journal_id_from_18) {
-            std::collections::hash_map::Entry::Occupied(occupied_entry) => {
+            std::collections::btree_map::Entry::Occupied(occupied_entry) => {
                 Ok(*occupied_entry.get())
             }
-            std::collections::hash_map::Entry::Vacant(vacant_entry) => {
+            std::collections::btree_map::Entry::Vacant(vacant_entry) => {
                 let new_id =
                     get_or_create_account_journal_from_18_to_19(clients, journal_id_from_18)
                         .await?;
