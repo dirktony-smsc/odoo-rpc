@@ -88,7 +88,7 @@ pub async fn get_or_create_account_journal_from_18_to_19(
                 code: journal_from_odoo_18.code,
                 active: journal_from_odoo_18.active,
                 type_: journal_from_odoo_18.type_,
-                autocheck_on_post: journal_from_odoo_18.autocheck_on_post,
+                // autocheck_on_post: journal_from_odoo_18.autocheck_on_post,
                 restrict_mode_hash_table: journal_from_odoo_18.restrict_mode_hash_table,
                 sequence: journal_from_odoo_18.sequence,
                 invoice_reference_type: journal_from_odoo_18.invoice_reference_type,
