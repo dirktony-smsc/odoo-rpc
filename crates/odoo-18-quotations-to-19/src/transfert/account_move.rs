@@ -164,8 +164,10 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         price_unit: line.price_unit,
                         discount: line.discount,
                         is_refund: line.is_refund,
+                        account_id: Default::default(),
                     });
                 }
+                trace!("to import {:#?}", to_import_lines);
                 if to_import_lines.is_empty() {
                     warn!("No account lines needs to be imported. Moving on...");
                 } else {
