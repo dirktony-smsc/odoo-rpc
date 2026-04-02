@@ -92,7 +92,7 @@ pub async fn get_or_create_account_account_from_18_to_19(
                 code: account_from_odoo_18.code,
                 code_store: account_from_odoo_18.code_store,
                 placeholder_code: account_from_odoo_18.placeholder_code,
-                deprecated: account_from_odoo_18.deprecated,
+                // deprecated: account_from_odoo_18.deprecated,
                 used: account_from_odoo_18.used,
                 account_type: account_from_odoo_18.account_type,
                 include_initial_balance: account_from_odoo_18.include_initial_balance,
