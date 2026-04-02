@@ -41,7 +41,7 @@ use crate::{
 static DEFAULT_USER_AGENT: LazyLock<String> =
     LazyLock::new(|| format!("odoo-json2-rs/{}", env!("CARGO_PKG_VERSION")));
 
-// TODO 
+// TODO
 /*
 #[derive(Debug, Default)]
 pub struct PathProviders {
@@ -179,7 +179,7 @@ impl OdooJson2Client {
                 .as_ref()
                 .and_then(|v| v.to_str().ok())
             {
-                Some("application/json") => {
+                Some(s) if s.contains("application/json") => {
                     let er: error::ModelMethodCallError = res.json().await?;
                     Err(er.into())
                 }
