@@ -87,7 +87,7 @@ pub struct AccountJournalToOdoo19 {
     pub active: bool,
     #[serde(rename = "type")]
     pub type_: AccountJournalType,
-    pub autocheck_on_post: bool,
+    // pub autocheck_on_post: bool,
     pub restrict_mode_hash_table: bool,
     pub sequence: u16,
 
