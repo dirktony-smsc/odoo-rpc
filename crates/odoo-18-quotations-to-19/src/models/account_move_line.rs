@@ -1,5 +1,5 @@
 use derive_more::derive::Display;
-use odoo_api_commons::deserialize_and_default_if_false;
+use odoo_api_commons::{Command, deserialize_and_default_if_false};
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
@@ -33,7 +33,7 @@ pub enum AccountMoveLineDisplayType {
     Epd,
 }
 
-#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+#[derive(Debug, Deserialize, FieldNamesAsSlice, Serialize)]
 pub struct AccountMoveLineFromOdoo18 {
     pub id: u64,
 
@@ -57,6 +57,7 @@ pub struct AccountMoveLineFromOdoo18 {
     pub price_unit: f32,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub discount: Option<f32>,
+    pub account_id: Many2OneRepr,
 
     pub is_refund: bool,
 }
@@ -81,6 +82,7 @@ pub struct AccountMoveLineToOdoo19 {
     pub quantity: f32,
     pub price_unit: f32,
     pub discount: Option<f32>,
+    pub account_id: Vec<Command<()>>,
 
     pub is_refund: bool,
 }
