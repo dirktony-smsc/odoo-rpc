@@ -57,6 +57,7 @@ pub struct AccountMoveLineFromOdoo18 {
     pub price_unit: f32,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub discount: Option<f32>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub account_id: Option<Many2OneRepr>,
 
     pub is_refund: bool,
