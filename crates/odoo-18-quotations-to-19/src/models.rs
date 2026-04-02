@@ -1,3 +1,4 @@
+pub mod account_account;
 pub mod account_journal;
 pub mod account_move;
 pub mod account_move_line;
