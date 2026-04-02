@@ -13,6 +13,7 @@ use crate::{
     models::account_account::{
         ACCOUNT_ACCOUNT_MODEL_NAME, AccountAccountFromOdoo18, AccountAccountToOdoo19,
     },
+    utils::get_or_create_currency_by_name,
 };
 
 pub async fn get_account_account_from_odoo18(
@@ -64,7 +65,7 @@ pub async fn get_or_create_account_account_from_18_to_19(
                 domain: vec![Domain::condition(
                     "code",
                     EQUALS_TO,
-                    account_from_odoo_18.code,
+                    account_from_odoo_18.code.as_str(),
                 )],
                 pagination: Some(PaginationParam {
                     limit: Some(1),
@@ -82,26 +83,30 @@ pub async fn get_or_create_account_account_from_18_to_19(
         create_account_account_to_odoo19(
             &clients.odoo_19,
             AccountAccountToOdoo19 {
-                name: todo!(),
-                currency_id: todo!(),
-                code: todo!(),
-                code_store: todo!(),
-                placeholder_code: todo!(),
-                deprecated: todo!(),
-                used: todo!(),
-                account_type: todo!(),
-                include_initial_balance: todo!(),
-                internal_group: todo!(),
-                reconcile: todo!(),
-                tax_ids: todo!(),
-                note: todo!(),
-                opening_debit: todo!(),
-                opening_credit: todo!(),
-                opening_balance: todo!(),
-                current_balance: todo!(),
-                related_taxes_amount: todo!(),
-                non_trade: todo!(),
-                display_mapping_tab: todo!(),
+                name: account_from_odoo_18.name,
+                currency_id: if let Some(currency) = account_from_odoo_18.currency_id {
+                    Some(get_or_create_currency_by_name(&clients.odoo_19, currency.name).await?)
+                } else {
+                    None
+                },
+                code: account_from_odoo_18.code,
+                code_store: account_from_odoo_18.code_store,
+                placeholder_code: account_from_odoo_18.placeholder_code,
+                deprecated: account_from_odoo_18.deprecated,
+                used: account_from_odoo_18.used,
+                account_type: account_from_odoo_18.account_type,
+                include_initial_balance: account_from_odoo_18.include_initial_balance,
+                internal_group: account_from_odoo_18.internal_group,
+                reconcile: account_from_odoo_18.reconcile,
+                tax_ids: Default::default(),
+                note: account_from_odoo_18.note,
+                opening_debit: account_from_odoo_18.opening_debit,
+                opening_credit: account_from_odoo_18.opening_credit,
+                opening_balance: account_from_odoo_18.opening_balance,
+                current_balance: account_from_odoo_18.current_balance,
+                related_taxes_amount: account_from_odoo_18.related_taxes_amount,
+                non_trade: account_from_odoo_18.non_trade,
+                display_mapping_tab: account_from_odoo_18.display_mapping_tab,
             },
         )
         .await
