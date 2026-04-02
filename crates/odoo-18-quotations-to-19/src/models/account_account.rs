@@ -128,7 +128,7 @@ pub struct AccountAccountToOdoo19 {
     pub code: String,
     pub code_store: Option<String>,
     pub placeholder_code: Option<String>,
-    pub deprecated: bool,
+    // pub deprecated: bool,
     pub used: bool,
     pub account_type: AccountAccountType,
     pub include_initial_balance: bool,
