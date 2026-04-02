@@ -1,5 +1,5 @@
 use derive_more::derive::Display;
-use odoo_api_commons::{Command, deserialize_and_default_if_false};
+use odoo_api_commons::deserialize_and_default_if_false;
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
@@ -82,7 +82,7 @@ pub struct AccountMoveLineToOdoo19 {
     pub quantity: f32,
     pub price_unit: f32,
     pub discount: Option<f32>,
-    pub account_id: Vec<Command<()>>,
+    pub account_id: u64,
 
     pub is_refund: bool,
 }

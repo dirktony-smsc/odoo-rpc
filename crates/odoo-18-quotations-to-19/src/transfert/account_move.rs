@@ -2,7 +2,7 @@ use std::num::NonZero;
 
 use log::{debug, info, trace, warn};
 use odoo_api_commons::{
-    Command, Domain, PaginationParam,
+    Domain, PaginationParam,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
 };
 use odoo_json2::base_methods::{create::CreateParam, write::WriteParam};
@@ -166,14 +166,9 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         price_unit: line.price_unit,
                         discount: line.discount,
                         is_refund: line.is_refund,
-                        account_id: vec![
-                            account_cache
-                                .get_mapping(clients, line.account_id.id)
-                                .await?,
-                        ]
-                        .into_iter()
-                        .map(|id| Command::Link { id })
-                        .collect(),
+                        account_id: account_cache
+                            .get_mapping(clients, line.account_id.id)
+                            .await?,
                     });
                 }
                 trace!("to import {:#?}", to_import_lines);
