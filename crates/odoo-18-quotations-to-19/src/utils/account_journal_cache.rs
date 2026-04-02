@@ -25,7 +25,7 @@ pub async fn get_account_journal_from_odoo18(
             account_journal_from_odoo_18_fields(),
             vec![Domain::condition("id", EQUALS_TO, journal_id)],
             PaginationParam {
-                limit: Some(0),
+                limit: Some(1),
                 ..Default::default()
             },
         )
