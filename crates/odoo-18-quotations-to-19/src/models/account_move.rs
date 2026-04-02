@@ -149,6 +149,7 @@ pub struct AccountMoveToOdoo19 {
     pub name: String,
     pub name_placeholder: Option<String>,
     #[field_names_as_slice(skip)]
+    #[serde(rename = "ref")]
     pub ref_: Option<String>,
     pub date: String,
     pub state: AccountMoveState,
