@@ -101,7 +101,7 @@ pub struct AccountAccountFromOdoo18 {
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub current_balance: Option<f32>,
-    pub related_taxes_amount: bool,
+    pub related_taxes_amount: u64,
 
     pub non_trade: bool,
 
@@ -141,7 +141,7 @@ pub struct AccountAccountToOdoo19 {
     pub opening_balance: Option<f32>,
 
     pub current_balance: Option<f32>,
-    pub related_taxes_amount: bool,
+    pub related_taxes_amount: u64,
 
     pub non_trade: bool,
 
