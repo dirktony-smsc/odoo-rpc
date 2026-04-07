@@ -53,7 +53,7 @@ impl ModelName for ResourceResourceFromOdoo18 {
     const NAME: &'static str = RESOURCE_RESOURCE_MODEL_NAME;
 }
 
-#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+#[derive(Debug, Serialize, FieldNamesAsSlice)]
 pub struct ResourceResourceToOdoo19 {
     pub name: String,
     pub active: bool,
