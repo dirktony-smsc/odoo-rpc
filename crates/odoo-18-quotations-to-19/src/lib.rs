@@ -13,7 +13,12 @@ use clap::{Parser, Subcommand};
 use config::Config;
 use odoo_api_commons::PaginationParam;
 
-use crate::{batch_update::BatchUpdateArg, models::account_account::AccountAccountFromOdoo18};
+use crate::{
+    batch_update::BatchUpdateArg,
+    models::{
+        account_account::AccountAccountFromOdoo18, resource_resource::ResourceResourceFromOdoo18,
+    },
+};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
@@ -65,7 +70,7 @@ pub async fn run() -> anyhow::Result<()> {
         Commands::SomeDebug => {
             let a = clients
                 .odoo_18
-                .search_read_with_auto_model_name_and_field_names::<AccountAccountFromOdoo18>(
+                .search_read_with_auto_model_name_and_field_names::<ResourceResourceFromOdoo18>(
                     Default::default(),
                     PaginationParam {
                         limit: Some(10),
@@ -74,7 +79,7 @@ pub async fn run() -> anyhow::Result<()> {
                 )
                 .await?;
             fs::write(
-                "./target/account.account.json",
+                "./target/resource.resource.json",
                 serde_json::to_string_pretty(&a)?,
             )?;
         }
