@@ -5,6 +5,7 @@ pub mod account_move_line;
 pub mod account_tax;
 pub mod crm_lead;
 pub mod crm_stage;
+pub mod resource_resource;
 pub mod sales_order;
 pub mod sales_order_line;
 
