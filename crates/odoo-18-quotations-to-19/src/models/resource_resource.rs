@@ -31,7 +31,7 @@ pub enum ResourceType {
     Material,
 }
 
-#[derive(Debug, Deserialize, FieldNamesAsSlice)]
+#[derive(Debug, Deserialize, FieldNamesAsSlice, Serialize)]
 pub struct ResourceResourceFromOdoo18 {
     pub id: u64,
     pub name: String,
