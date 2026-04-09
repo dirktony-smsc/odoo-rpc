@@ -12,11 +12,13 @@ use clap::{Parser, Subcommand};
 
 use config::Config;
 use odoo_api_commons::PaginationParam;
+use odoo_rpc::ModelName;
 
 use crate::{
     batch_update::BatchUpdateArg,
     models::{
-        account_account::AccountAccountFromOdoo18, resource_resource::ResourceResourceFromOdoo18,
+        account_account::AccountAccountFromOdoo18, hr_employee::HrEmployeeFromOdoo18,
+        resource_resource::ResourceResourceFromOdoo18,
     },
 };
 
@@ -68,20 +70,26 @@ pub async fn run() -> anyhow::Result<()> {
             transfert::crm_lead::run_transfert(&clients, limit).await?;
         }
         Commands::SomeDebug => {
+            /*
             let a = clients
                 .odoo_18
-                .search_read_with_auto_model_name_and_field_names::<ResourceResourceFromOdoo18>(
+                .search_read_with_auto_model_name_and_field_names::<HrEmployeeFromOdoo18>(
                     Default::default(),
                     PaginationParam {
                         limit: Some(10),
                         ..Default::default()
                     },
                 )
+                .await?;*/
+            let a = clients
+                .odoo_18
+                .fields_get(
+                    HrEmployeeFromOdoo18::NAME.into(),
+                    Default::default(),
+                    Default::default(),
+                )
                 .await?;
-            fs::write(
-                "./target/resource.resource.json",
-                serde_json::to_string_pretty(&a)?,
-            )?;
+            fs::write("./target/hr.employee.toml", toml::to_string_pretty(&a)?)?;
         }
         Commands::BatchUpdate(arg) => {
             arg.run(&clients).await?;
