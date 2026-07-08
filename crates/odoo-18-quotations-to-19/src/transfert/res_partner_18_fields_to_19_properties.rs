@@ -1,7 +1,7 @@
 use std::{collections::HashMap, num::NonZero, str::FromStr};
 
 use clap::Args;
-use log::{debug, trace};
+use log::{debug, info, trace};
 use odoo_api_commons::PaginationParam;
 use odoo_json2::{
     OdooJson2Client,
@@ -130,6 +130,7 @@ impl ResPartner18FieldsTo19PropertiesArg {
             batch_limit: limit,
         } = self;
         let x_19_property_name = x_19_property_name.get_name(&clients.odoo_19).await?;
+        info!("found odoo 19 name id = {x_19_property_name}");
         let limit = limit.map(|d| d.get()).unwrap_or(30);
         let mut offset = 0u32;
         let count = clients
