@@ -5,6 +5,23 @@ use crate::{client::Clients, error, models::IdNameRepr, utils::get_or_create_par
 #[derive(Debug, Default)]
 pub struct PartnerMappingCache(BTreeMap<u64, u64>);
 
+pub async fn get_mapping_partner_o18_to_o19(
+    clients: &Clients,
+    odoo_18_id: u64,
+) -> Result<u64, error::Error> {
+    let partner_entry_from_18 = clients
+        .odoo_18
+        .read::<IdNameRepr>("res.partner".into(), vec![odoo_18_id], vec!["name".into()])
+        .await?
+        .into_iter()
+        .next()
+        .ok_or(error::Error::NotFound)?;
+
+    let new_id =
+        get_or_create_partner_by_name(&clients.odoo_19, partner_entry_from_18.name).await?;
+    Ok(new_id)
+}
+
 impl PartnerMappingCache {
     pub async fn get_mapping(
         &mut self,
