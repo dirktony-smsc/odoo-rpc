@@ -11,4 +11,9 @@ pub enum Error {
     Regex(#[from] regex::Error),
     StdIo(#[from] std::io::Error),
     Reqwest(#[from] reqwest::Error),
+    #[error("Properties ID not found for {}", .0)]
+    PropertiesNotFound(String),
+    X19PropertyNameParseError(
+        #[from] crate::transfert::res_partner_18_fields_to_19_properties::X19PropertyNameParseError,
+    ),
 }
