@@ -177,10 +177,10 @@ impl ResPartner18FieldsTo19PropertiesArg {
                         WriteParam {
                             ids: vec![id],
                             vals: json!({
-                                "properties": {
+                                "properties": [{
                                     "name": &x_19_property_name,
                                     "value": field_value
-                                }
+                                }]
                             }),
                         },
                     )
