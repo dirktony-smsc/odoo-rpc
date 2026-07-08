@@ -215,7 +215,7 @@ impl BatchUpdateArg {
                     .await?;
             }
         }
-        todo!()
+        Ok(())
     }
 }
 
