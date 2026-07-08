@@ -13,7 +13,10 @@ use clap::{Parser, Subcommand};
 use config::Config;
 use odoo_rpc::ModelName;
 
-use crate::{batch_update::BatchUpdateArg, models::hr_employee::HrEmployeeFromOdoo18};
+use crate::{
+    batch_update::BatchUpdateArg, models::hr_employee::HrEmployeeFromOdoo18,
+    transfert::res_partner_18_fields_to_19_properties::ResPartner18FieldsTo19PropertiesArg,
+};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
@@ -35,6 +38,7 @@ pub enum Commands {
     AccountMove,
     BatchUpdate(BatchUpdateArg),
     SomeDebug,
+    ResPartner18FieldsTo19Properties(ResPartner18FieldsTo19PropertiesArg),
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -89,6 +93,9 @@ pub async fn run() -> anyhow::Result<()> {
         }
         Commands::AccountMove => {
             transfert::account_move::run_transfert(&clients, limit).await?;
+        }
+        Commands::ResPartner18FieldsTo19Properties(arg) => {
+            arg.run(&clients).await?;
         }
     }
 
