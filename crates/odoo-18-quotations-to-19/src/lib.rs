@@ -11,16 +11,9 @@ use std::{fs, num::NonZero};
 use clap::{Parser, Subcommand};
 
 use config::Config;
-use odoo_api_commons::PaginationParam;
 use odoo_rpc::ModelName;
 
-use crate::{
-    batch_update::BatchUpdateArg,
-    models::{
-        account_account::AccountAccountFromOdoo18, hr_employee::HrEmployeeFromOdoo18,
-        resource_resource::ResourceResourceFromOdoo18,
-    },
-};
+use crate::{batch_update::BatchUpdateArg, models::hr_employee::HrEmployeeFromOdoo18};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
