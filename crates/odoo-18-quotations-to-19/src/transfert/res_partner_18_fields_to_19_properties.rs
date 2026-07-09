@@ -5,9 +5,9 @@ use log::{debug, info, trace};
 use odoo_api_commons::PaginationParam;
 use odoo_json2::{
     OdooJson2Client,
-    base_methods::{search_read::SearchReadParam, write::WriteParam},
+    base_methods::{read::ReadParam, search_read::SearchReadParam, write::WriteParam},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{client::Clients, utils::partner_cache::get_mapping_partner_o18_to_o19};
@@ -65,15 +65,21 @@ mod x19_props_name_tests {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct SimpleO19PartnerRepr {
     properties: Vec<X19Property>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct X19Property {
     name: String,
     string: String,
+    #[serde(default = "x19_property_default_value")]
+    value: serde_json::Value,
+}
+
+fn x19_property_default_value() -> serde_json::Value {
+    json!(false)
 }
 
 impl X19PropertyName {
@@ -168,20 +174,39 @@ impl ResPartner18FieldsTo19PropertiesArg {
                     .collect::<HashMap<u64, serde_json::Value>>()
             };
             for (id, field_value) in values {
+                trace!("Getting id odoo 18 {id} mapping");
                 let id = get_mapping_partner_o18_to_o19(clients, id).await?;
                 trace!("Updating Odoo 19 ({id}) res.partner props...");
+                let mut partner = clients
+                    .odoo_19
+                    .read::<SimpleO19PartnerRepr>(
+                        "res.partner".into(),
+                        ReadParam {
+                            ids: vec![id],
+                            fields: vec!["properties".into()],
+                        },
+                    )
+                    .await?
+                    .into_iter()
+                    .next()
+                    .ok_or(crate::error::Error::NotFound)?;
+                {
+                    let property = partner
+                        .properties
+                        .iter_mut()
+                        .find(|d| d.name == x_19_property_name)
+                        .ok_or(crate::error::Error::PropertiesNotFound(
+                            x_19_property_name.clone(),
+                        ))?;
+                    property.value = field_value;
+                };
                 clients
                     .odoo_19
                     .write(
                         "res.partner".into(),
                         WriteParam {
                             ids: vec![id],
-                            vals: json!({
-                                "properties": [{
-                                    "name": &x_19_property_name,
-                                    "value": field_value
-                                }]
-                            }),
+                            vals: partner,
                         },
                     )
                     .await?;
