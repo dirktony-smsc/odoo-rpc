@@ -144,7 +144,7 @@ impl ResPartner18FieldsTo19PropertiesArg {
             .search_count("res.partner".into(), Default::default())
             .await?;
         loop {
-            debug!("Fetching ({offset} - {limit}) of {count}");
+            info!("Fetching ({offset} - {limit}) of {count}");
             let ids = clients
                 .odoo_18
                 .search(
@@ -157,7 +157,7 @@ impl ResPartner18FieldsTo19PropertiesArg {
                 )
                 .await?;
             let values = {
-                trace!("Fetching data for {} ids", ids.len());
+                debug!("Fetching data for {} ids", ids.len());
                 let raw_vals = clients
                     .odoo_18
                     .read::<HashMap<String, serde_json::Value>>(
