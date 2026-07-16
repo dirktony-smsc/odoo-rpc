@@ -24,8 +24,11 @@ use crate::{
 pub struct Cli {
     #[arg(short)]
     pub limit: Option<NonZero<u32>>,
+    /// Configuration file
+    ///
+    /// Defaults to `default.conf.toml` if not set.
     #[arg(short, long)]
-    pub configuration_file: String,
+    pub configuration_file: Option<String>,
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -41,10 +44,16 @@ pub enum Commands {
     ResPartner18FieldsTo19Properties(ResPartner18FieldsTo19PropertiesArg),
 }
 
+const DEFAULT_CONF_PATH: &str = "default.conf.toml";
+
 pub async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    let config: Config = toml::from_str(&fs::read_to_string(&cli.configuration_file)?)?;
+    let config: Config = toml::from_str(&fs::read_to_string(
+        cli.configuration_file
+            .as_deref()
+            .unwrap_or(DEFAULT_CONF_PATH),
+    )?)?;
 
     let clients = client::Clients::from_config(config).await?;
 
