@@ -16,6 +16,7 @@ pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
             },
         )
         .await?;*/
+    // TODO refactor this to a generic function
     let a = clients
         .odoo_18
         .fields_get(
