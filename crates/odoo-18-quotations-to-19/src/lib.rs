@@ -14,7 +14,7 @@ use config::Config;
 use odoo_rpc::ModelName;
 
 use crate::{
-    batch_update::BatchUpdateArg, models::hr_employee::HrEmployeeFromOdoo18,
+    batch_update::BatchUpdateArg, models::product_template::ProductTemplateFromOdoo18,
     transfert::res_partner_18_fields_to_19_properties::ResPartner18FieldsTo19PropertiesArg,
 };
 
@@ -81,7 +81,7 @@ pub async fn run() -> anyhow::Result<()> {
             let a = clients
                 .odoo_18
                 .fields_get(
-                    HrEmployeeFromOdoo18::NAME.into(),
+                    ProductTemplateFromOdoo18::NAME.into(),
                     Default::default(),
                     Default::default(),
                 )
