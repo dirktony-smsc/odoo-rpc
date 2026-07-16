@@ -3,6 +3,8 @@ pub mod client;
 pub mod config;
 pub mod error;
 pub mod models;
+#[cfg(debug_assertions)]
+pub mod some_debug;
 pub mod transfert;
 pub(crate) mod utils;
 
@@ -11,10 +13,9 @@ use std::{fs, num::NonZero};
 use clap::{Parser, Subcommand};
 
 use config::Config;
-use odoo_rpc::ModelName;
 
 use crate::{
-    batch_update::BatchUpdateArg, models::product_template::ProductTemplateFromOdoo18,
+    batch_update::BatchUpdateArg,
     transfert::res_partner_18_fields_to_19_properties::ResPartner18FieldsTo19PropertiesArg,
 };
 
@@ -40,6 +41,7 @@ pub enum Commands {
     CrmLead,
     AccountMove,
     BatchUpdate(BatchUpdateArg),
+    #[cfg(debug_assertions)]
     SomeDebug,
     ResPartner18FieldsTo19Properties(ResPartner18FieldsTo19PropertiesArg),
 }
@@ -75,27 +77,9 @@ pub async fn run() -> anyhow::Result<()> {
         Commands::CrmLead => {
             transfert::crm_lead::run_transfert(&clients, limit).await?;
         }
+        #[cfg(debug_assertions)]
         Commands::SomeDebug => {
-            /*
-            let a = clients
-                .odoo_18
-                .search_read_with_auto_model_name_and_field_names::<HrEmployeeFromOdoo18>(
-                    Default::default(),
-                    PaginationParam {
-                        limit: Some(10),
-                        ..Default::default()
-                    },
-                )
-                .await?;*/
-            let a = clients
-                .odoo_18
-                .fields_get(
-                    ProductTemplateFromOdoo18::NAME.into(),
-                    Default::default(),
-                    Default::default(),
-                )
-                .await?;
-            fs::write("./target/hr.employee.toml", toml::to_string_pretty(&a)?)?;
+            some_debug::run_some_dbg(&clients).await?;
         }
         Commands::BatchUpdate(arg) => {
             arg.run(&clients).await?;
