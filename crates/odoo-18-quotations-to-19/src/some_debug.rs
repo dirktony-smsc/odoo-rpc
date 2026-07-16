@@ -24,6 +24,9 @@ pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
             Default::default(),
         )
         .await?;
-    fs::write("./target/hr.employee.toml", toml::to_string_pretty(&a)?)?;
+    fs::write(
+        "./target/product.template.toml",
+        toml::to_string_pretty(&a)?,
+    )?;
     Ok(())
 }
