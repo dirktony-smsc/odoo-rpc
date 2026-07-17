@@ -1,4 +1,3 @@
-use derive_more::derive::Display;
 use odoo_api_commons::deserialize_and_default_if_false;
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
