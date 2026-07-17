@@ -38,7 +38,7 @@ pub async fn run(
                 description_sale: product_template.description_sale,
                 type_: product_template.type_,
                 combo_ids: Default::default(),
-                service_tracking: None,
+                service_tracking: Some("no".into()),
                 categ_id: Default::default(),
                 currency_id: Default::default(),
                 cost_currency_id: Default::default(),
