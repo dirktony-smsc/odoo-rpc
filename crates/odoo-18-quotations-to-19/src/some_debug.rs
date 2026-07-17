@@ -1,33 +1,22 @@
 use std::fs;
 
-use odoo_rpc::ModelName;
+use odoo_rpc::{ModelName, OdooJsonRPCClient};
 
 use crate::{client::Clients, models::product_template::ProductTemplateFromOdoo18};
 
-pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
-    /*
-    let a = clients
-        .odoo_18
-        .search_read_with_auto_model_name_and_field_names::<HrEmployeeFromOdoo18>(
-            Default::default(),
-            PaginationParam {
-                limit: Some(10),
-                ..Default::default()
-            },
-        )
-        .await?;*/
-    // TODO refactor this to a generic function
-    let a = clients
-        .odoo_18
-        .fields_get(
-            ProductTemplateFromOdoo18::NAME.into(),
-            Default::default(),
-            Default::default(),
-        )
+async fn get_o18_field_get<T: ModelName>(client: &OdooJsonRPCClient) -> anyhow::Result<()> {
+    let a = client
+        .fields_get(T::NAME.into(), Default::default(), Default::default())
         .await?;
     fs::write(
-        "./target/product.template.toml",
+        format!("./target/{}.toml", T::NAME),
         toml::to_string_pretty(&a)?,
     )?;
+    Ok(())
+}
+
+pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
+    // TODO refactor this to a generic function
+    get_o18_field_get::<ProductTemplateFromOdoo18>(&clients.odoo_18).await?;
     Ok(())
 }
