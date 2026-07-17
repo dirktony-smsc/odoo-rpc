@@ -12,7 +12,11 @@ use crate::{
     utils::{iterate_chunks::IterateModelFromOdoo18, product_tag_cache::ProductTagCache},
 };
 
-pub async fn run(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
+pub async fn run(
+    clients: &Clients,
+    limit: NonZero<u32>,
+    default_uom_id: u64,
+) -> Result<(), error::Error> {
     let mut stream = IterateModelFromOdoo18::new(
         &clients.odoo_18,
         ProductTemplateFromOdoo18::NAME.into(),
@@ -34,7 +38,7 @@ pub async fn run(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Er
                 description_sale: product_template.description_sale,
                 type_: product_template.type_,
                 combo_ids: Default::default(),
-                service_tracking: product_template.service_tracking,
+                service_tracking: None,
                 categ_id: Default::default(),
                 currency_id: Default::default(),
                 cost_currency_id: Default::default(),
@@ -43,8 +47,7 @@ pub async fn run(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Er
                 volume: product_template.volume,
                 weight: product_template.weight,
                 sale_ok: product_template.sale_ok,
-                uom_id: Default::default(),
-                uom_po_id: Default::default(),
+                uom_id: Some(default_uom_id),
                 color: product_template.color,
                 attribute_line_ids: Default::default(),
                 valid_product_template_attribute_line_ids: Default::default(),

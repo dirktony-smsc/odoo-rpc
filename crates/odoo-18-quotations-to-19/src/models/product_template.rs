@@ -158,7 +158,6 @@ pub struct ProductTemplateToOdoo19 {
 
     pub sale_ok: bool,
     pub uom_id: Option<u64>,
-    pub uom_po_id: Option<u64>,
 
     pub color: u16,
 
