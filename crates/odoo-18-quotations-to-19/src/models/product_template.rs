@@ -91,7 +91,7 @@ pub struct ProductTemplateFromOdoo18 {
     pub sale_ok: bool,
     pub purchase_ok: bool,
     pub uom_id: Many2OneRepr,
-    pub uom_po_unit: Many2OneRepr,
+    pub uom_po_id: Many2OneRepr,
 
     pub color: u16,
 
@@ -114,13 +114,15 @@ pub struct ProductTemplateFromOdoo18 {
     // TODO do product properties
 }
 
-pub fn product_template_from_odoo_18() -> Vec<String> {
-    let mut fields = ProductTemplateFromOdoo18::FIELD_NAMES_AS_SLICE
-        .iter()
-        .map(|a| String::from(*a))
-        .collect::<Vec<String>>();
-    fields.push("type".into());
-    fields
+impl ProductTemplateFromOdoo18 {
+    pub fn field_names() -> Vec<String> {
+        let mut fields = ProductTemplateFromOdoo18::FIELD_NAMES_AS_SLICE
+            .iter()
+            .map(|a| String::from(*a))
+            .collect::<Vec<String>>();
+        fields.push("type".into());
+        fields
+    }
 }
 
 impl ModelName for ProductTemplateFromOdoo18 {
