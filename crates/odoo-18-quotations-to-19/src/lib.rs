@@ -44,6 +44,7 @@ pub enum Commands {
     #[cfg(debug_assertions)]
     SomeDebug,
     ResPartner18FieldsTo19Properties(ResPartner18FieldsTo19PropertiesArg),
+    ProductTemplate,
 }
 
 const DEFAULT_CONF_PATH: &str = "default.conf.toml";
@@ -89,6 +90,9 @@ pub async fn run() -> anyhow::Result<()> {
         }
         Commands::ResPartner18FieldsTo19Properties(arg) => {
             arg.run(&clients).await?;
+        }
+        Commands::ProductTemplate => {
+            transfert::product_template::run(&clients, limit).await?;
         }
     }
 
