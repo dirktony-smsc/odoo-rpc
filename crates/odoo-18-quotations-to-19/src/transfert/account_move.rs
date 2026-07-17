@@ -2,7 +2,7 @@ use std::num::NonZero;
 
 use log::{debug, info, trace, warn};
 use odoo_api_commons::{
-    Domain, PaginationParam,
+    Domain,
     domain::operators::{EQUALS_TO, NOT_EQUALS_TO},
 };
 use odoo_json2::base_methods::{create::CreateParam, write::WriteParam};
@@ -22,9 +22,10 @@ use crate::{
         },
     },
     utils::{
-        account_account_cache::AccountAccountMappingCache,
+        FieldnamesAsStringVec, account_account_cache::AccountAccountMappingCache,
         account_journal_cache::AccountJournalMappingCache, get_or_create_currency_by_name,
-        partner_cache::PartnerMappingCache, product::get_product_by_name,
+        iterate_chunks::IterateModelFromOdoo18, partner_cache::PartnerMappingCache,
+        product::get_product_by_name,
     },
 };
 
@@ -34,35 +35,32 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
         Domain::condition("name", NOT_EQUALS_TO, "/"),
         Domain::condition("name", NOT_EQUALS_TO, false),
     ];
-    let limit = limit.get();
-    let count = clients
-        .odoo_18
-        .search_count(
-            AccountMoveFromOdoo18::NAME.into(),
-            account_move_domains.clone(),
-        )
-        .await?;
-
-    info!("{count} account move found...");
+    // let limit = limit.get();
+    // let count = clients
+    //     .odoo_18
+    //     .search_count(
+    //         AccountMoveFromOdoo18::NAME.into(),
+    //         account_move_domains.clone(),
+    //     )
+    //     .await?;
+    let mut acc_moves_stream = IterateModelFromOdoo18::new(
+        &clients.odoo_18,
+        AccountMoveFromOdoo18::NAME.into(),
+        account_move_from_odoo_18_fields(),
+        account_move_domains,
+        limit,
+        0,
+    )
+    .await?;
+    info!("{} account move found...", acc_moves_stream.count());
     trace!("Using pagination!");
 
-    let mut current_offset = 0u32;
     let mut partner_cache = PartnerMappingCache::default();
     let mut journal_cache = AccountJournalMappingCache::default();
     let mut account_cache = AccountAccountMappingCache::default();
 
-    loop {
-        let account_moves = clients
-            .odoo_18
-            .search_read_with_auto_model_name::<AccountMoveFromOdoo18>(
-                account_move_from_odoo_18_fields(),
-                account_move_domains.clone(),
-                PaginationParam {
-                    offset: Some(current_offset),
-                    limit: Some(limit),
-                },
-            )
-            .await?;
+    while let Some(account_moves) = acc_moves_stream.next::<AccountMoveFromOdoo18>().await {
+        let account_moves = account_moves?;
         for _move in account_moves {
             debug!("Account move {:#?} (ID: {})", _move.name, _move.id);
 
@@ -112,26 +110,17 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             };
 
             let account_move_line_domain = vec![Domain::condition("move_id", EQUALS_TO, _move.id)];
-            let count = clients
-                .odoo_18
-                .search_count(
-                    AccountMoveLineFromOdoo18::NAME.into(),
-                    account_move_line_domain.clone(),
-                )
-                .await?;
-            info!("{count} lines for {}", _move.name);
-            let mut current_offset = 0u32;
-            loop {
-                let lines = clients
-                    .odoo_18
-                    .search_read_with_auto_model_name_and_field_names::<AccountMoveLineFromOdoo18>(
-                        account_move_line_domain.clone(),
-                        PaginationParam {
-                            offset: Some(current_offset),
-                            limit: Some(limit),
-                        },
-                    )
-                    .await?;
+            let mut lines_stream = IterateModelFromOdoo18::new(
+                &clients.odoo_18,
+                AccountMoveLineFromOdoo18::NAME.into(),
+                AccountMoveLineFromOdoo18::field_names_as_string_vec(),
+                account_move_line_domain,
+                limit,
+                0,
+            )
+            .await?;
+            while let Some(maybe_lines) = lines_stream.next::<AccountMoveLineFromOdoo18>().await {
+                let lines = maybe_lines?;
                 let mut to_import_lines =
                     Vec::<AccountMoveLineToOdoo19>::with_capacity(lines.len());
                 for line in lines {
@@ -192,15 +181,6 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         log::info!("inserted {:?} line for {}", new_ids, new_move_id);
                     }
                 };
-                {
-                    let next_offset = current_offset + limit;
-                    if (next_offset as u64) < count {
-                        current_offset = next_offset;
-                        trace!("Loading next batch of account move line...");
-                    } else {
-                        break;
-                    }
-                }
             }
             {
                 clients
@@ -216,15 +196,6 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                     )
                     .await?;
                 log::debug!("updating state")
-            }
-        }
-        {
-            let next_offset = current_offset + limit;
-            if (next_offset as u64) < count {
-                current_offset = next_offset;
-                trace!("Loading next batch of account moves...");
-            } else {
-                break;
             }
         }
     }

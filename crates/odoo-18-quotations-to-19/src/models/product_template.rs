@@ -1,0 +1,176 @@
+use derive_more::derive::Display;
+use odoo_api_commons::{Command, deserialize_and_default_if_false};
+use odoo_rpc::ModelName;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use struct_field_names_as_array::FieldNamesAsSlice;
+
+use crate::models::Many2OneRepr;
+
+pub const PRODUCT_TEMPLATE_MODEL_NAME: &str = "product.template";
+
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Display,
+    Default,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum ProductTemplateType {
+    #[display("Goods")]
+    #[default]
+    Consu,
+    #[display("Service")]
+    Service,
+    #[display("Combo")]
+    Combo,
+}
+// #[derive(
+//     Debug,
+//     Clone,
+//     Copy,
+//     Deserialize,
+//     Serialize,
+//     PartialEq,
+//     Eq,
+//     PartialOrd,
+//     Ord,
+//     Hash,
+//     Display,
+//     Default,
+// )]
+// #[serde(rename_all = "snake_case")]
+// pub enum ProductServiceTracking {
+//     #[default]
+//     #[display("Nothing")]
+//     No,
+// }
+
+#[derive(Debug, Deserialize, FieldNamesAsSlice, Serialize)]
+pub struct ProductTemplateFromOdoo18 {
+    pub id: u64,
+
+    pub name: String,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub description: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub description_purchase: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub description_sale: Option<String>,
+    #[field_names_as_slice(skip)]
+    #[serde(rename = "type")]
+    pub type_: ProductTemplateType,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub combo_ids: Vec<u64>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub service_tracking: Option<String>,
+    pub categ_id: Many2OneRepr,
+
+    // Currencies
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub currency_id: Option<Many2OneRepr>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub cost_currency_id: Option<Many2OneRepr>,
+
+    // Price
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub list_price: Option<f32>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub standard_price: Option<f32>,
+
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub volume: Option<f32>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub weight: Option<f32>,
+
+    pub sale_ok: bool,
+    pub purchase_ok: bool,
+    pub uom_id: Many2OneRepr,
+    pub uom_po_id: Many2OneRepr,
+
+    pub color: u16,
+
+    pub attribute_line_ids: Vec<u64>,
+
+    pub valid_product_template_attribute_line_ids: Vec<u64>,
+
+    pub product_variant_ids: Vec<u64>,
+
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub barcode: Option<String>,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub default_code: Option<String>,
+
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub product_document_ids: Vec<u64>,
+
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub product_tag_ids: Vec<u64>,
+    // TODO do product properties
+}
+
+impl ProductTemplateFromOdoo18 {
+    pub fn field_names() -> Vec<String> {
+        let mut fields = ProductTemplateFromOdoo18::FIELD_NAMES_AS_SLICE
+            .iter()
+            .map(|a| String::from(*a))
+            .collect::<Vec<String>>();
+        fields.push("type".into());
+        fields
+    }
+}
+
+impl ModelName for ProductTemplateFromOdoo18 {
+    const NAME: &'static str = PRODUCT_TEMPLATE_MODEL_NAME;
+}
+
+#[derive(Debug, FieldNamesAsSlice, Serialize)]
+pub struct ProductTemplateToOdoo19 {
+    pub name: String,
+    pub description: Option<String>,
+    pub description_purchase: Option<String>,
+    pub description_sale: Option<String>,
+    #[field_names_as_slice(skip)]
+    #[serde(rename = "type")]
+    pub type_: ProductTemplateType,
+    pub combo_ids: Vec<Command<Value>>,
+    pub service_tracking: Option<String>,
+    pub categ_id: Option<u64>,
+
+    // Currencies
+    pub currency_id: Option<u64>,
+    pub cost_currency_id: Option<u64>,
+
+    // Price
+    pub list_price: Option<f32>,
+    pub standard_price: Option<f32>,
+
+    pub volume: Option<f32>,
+    pub weight: Option<f32>,
+
+    pub sale_ok: bool,
+    pub uom_id: Option<u64>,
+
+    pub color: u16,
+
+    pub attribute_line_ids: Vec<Command<Value>>,
+
+    pub valid_product_template_attribute_line_ids: Vec<Command<Value>>,
+
+    // pub product_variant_ids: Vec<Command<_>>,
+    pub barcode: Option<String>,
+    pub default_code: Option<String>,
+
+    pub product_document_ids: Vec<Command<Value>>,
+
+    pub product_tag_ids: Vec<Command<Value>>,
+    // TODO do product properties
+}

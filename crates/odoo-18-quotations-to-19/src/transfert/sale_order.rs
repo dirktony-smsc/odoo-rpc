@@ -1,6 +1,6 @@
 use std::{collections::HashMap, num::NonZero};
 
-use odoo_api_commons::{Command, Domain, PaginationParam, domain::operators::EQUALS_TO};
+use odoo_api_commons::{Command, Domain, domain::operators::EQUALS_TO};
 use odoo_json2::base_methods::create::CreateParam;
 use odoo_rpc::ModelName;
 
@@ -14,6 +14,8 @@ use crate::{
         },
     },
     utils::{
+        FieldnamesAsStringVec,
+        iterate_chunks::IterateModelFromOdoo18,
         partner_cache::PartnerMappingCache,
         product::{get_opt_product_template_by_name, get_product_by_name},
         tax_cache::TaxMappingCache,
@@ -21,26 +23,21 @@ use crate::{
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
-    let count = clients
-        .odoo_18
-        .search_count(SalesOrderFrom18::NAME.into(), Default::default())
-        .await?;
-    log::info!("Odoo 18 `sale.order` count = {count}");
+    let mut stream = IterateModelFromOdoo18::new(
+        &clients.odoo_18,
+        SalesOrderFrom18::NAME.into(),
+        SalesOrderFrom18::field_names_as_string_vec(),
+        Default::default(),
+        limit,
+        0,
+    )
+    .await?;
+    log::info!("Odoo 18 `sale.order` count = {}", stream.count());
     let mut order_lines_mappings = HashMap::<u64, u64>::new();
-    let mut current_offset = 0u32;
     let mut tax_cache = TaxMappingCache::default();
     let mut partners_cache = PartnerMappingCache::default();
-    loop {
-        let orders = clients
-            .odoo_18
-            .search_read_with_auto_model_name_and_field_names::<SalesOrderFrom18>(
-                Default::default(),
-                PaginationParam {
-                    offset: current_offset.into(),
-                    limit: Some(limit.into()),
-                },
-            )
-            .await?;
+    while let Some(maybe_orders) = stream.next::<SalesOrderFrom18>().await {
+        let orders = maybe_orders?;
         for order in orders {
             log::info!("Order `{}` ({})", order.id, order.name);
             let new_order_id = {
@@ -97,24 +94,19 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
             };
             log::info!("New order id {}", new_order_id);
             let search_domain = vec![Domain::condition("order_id", EQUALS_TO, order.id)];
-            let count = clients
-                .odoo_18
-                .search_count(SalesOrderLineFrom18::NAME.into(), search_domain.clone())
-                .await?;
-            log::info!("Order `{}` lines: {}", order.id, count);
+            let mut stream = IterateModelFromOdoo18::new(
+                &clients.odoo_18,
+                SalesOrderLineFrom18::NAME.into(),
+                SalesOrderLineFrom18::field_names_as_string_vec(),
+                search_domain,
+                limit,
+                0,
+            )
+            .await?;
+            log::info!("Order `{}` lines: {}", order.id, stream.count());
             {
-                let mut current_offset = 0u32;
-                loop {
-                    let order_lines = clients
-                        .odoo_18
-                        .search_read_with_auto_model_name_and_field_names::<SalesOrderLineFrom18>(
-                            search_domain.clone(),
-                            PaginationParam {
-                                offset: current_offset.into(),
-                                limit: Some(limit.into()),
-                            },
-                        )
-                        .await?;
+                while let Some(maybe_order_lines) = stream.next::<SalesOrderLineFrom18>().await {
+                    let order_lines = maybe_order_lines?;
                     for order_line in order_lines {
                         log::info!(
                             "Order `{}` line `{}` ({})",
@@ -196,25 +188,7 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                         log::info!("new order line id: {new_order_line_id}");
                         order_lines_mappings.insert(order_line.id, new_order_line_id);
                     }
-                    {
-                        {
-                            let next_offset: u32 = current_offset + Into::<u32>::into(limit);
-                            if next_offset as u64 > count {
-                                break;
-                            } else {
-                                current_offset = next_offset;
-                            }
-                        }
-                    }
                 }
-            }
-        }
-        {
-            let next_offset: u32 = current_offset + Into::<u32>::into(limit);
-            if next_offset as u64 > count {
-                break;
-            } else {
-                current_offset = next_offset;
             }
         }
     }

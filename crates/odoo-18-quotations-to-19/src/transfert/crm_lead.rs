@@ -1,6 +1,5 @@
 use std::num::NonZero;
 
-use odoo_api_commons::PaginationParam;
 use odoo_json2::base_methods::create::CreateParam;
 use odoo_rpc::ModelName;
 
@@ -10,33 +9,33 @@ use crate::{
     models::crm_lead::{
         CRM_LEAD_MODEL_NAME, CrmLeadFromOdoo18, CrmLeadToOdoo19, crm_lead_from_odoo_18_fields,
     },
-    utils::{crm_stage_cache::CrmStageMappingCache, partner_cache::PartnerMappingCache},
+    utils::{
+        crm_stage_cache::CrmStageMappingCache, iterate_chunks::IterateModelFromOdoo18,
+        partner_cache::PartnerMappingCache,
+    },
 };
 
 pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(), error::Error> {
-    let count = clients
-        .odoo_18
-        .search_count(CrmLeadFromOdoo18::NAME.into(), Default::default())
-        .await?;
-    log::info!("Odoo 18 `{}` count = {count}", CrmLeadFromOdoo18::NAME);
+    let mut stream = IterateModelFromOdoo18::new(
+        &clients.odoo_18,
+        CRM_LEAD_MODEL_NAME.into(),
+        crm_lead_from_odoo_18_fields(),
+        Default::default(),
+        limit,
+        0,
+    )
+    .await?;
+    log::info!(
+        "Odoo 18 `{}` count = {}",
+        CrmLeadFromOdoo18::NAME,
+        stream.count()
+    );
 
     let mut partner_cache = PartnerMappingCache::default();
     let mut crm_stage_cache = CrmStageMappingCache::default();
 
-    let mut current_offset = 0u32;
-
-    loop {
-        let leads = clients
-            .odoo_18
-            .search_read_with_auto_model_name::<CrmLeadFromOdoo18>(
-                crm_lead_from_odoo_18_fields(),
-                Default::default(),
-                PaginationParam {
-                    offset: current_offset.into(),
-                    limit: Some(limit.into()),
-                },
-            )
-            .await?;
+    while let Some(maybe_leads) = stream.next::<CrmLeadFromOdoo18>().await {
+        let leads = maybe_leads?;
         {
             let mut to_import: Vec<CrmLeadToOdoo19> = Vec::with_capacity(leads.len());
             for lead in leads {
@@ -91,14 +90,6 @@ pub async fn run_transfert(clients: &Clients, limit: NonZero<u32>) -> Result<(),
                 .await?;
             log::info!("Imported {} leads/opportunities", res.len());
             log::debug!("New leads {:?}", res);
-        }
-        {
-            let next_offset: u32 = current_offset + Into::<u32>::into(limit);
-            if next_offset as u64 > count {
-                break;
-            } else {
-                current_offset = next_offset;
-            }
         }
     }
     Ok(())
