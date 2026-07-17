@@ -143,7 +143,7 @@ pub struct ProductTemplateToOdoo19 {
     pub type_: ProductTemplateType,
     pub combo_ids: Vec<Command<Value>>,
     pub service_tracking: Option<String>,
-    pub categ_id: Many2OneRepr,
+    pub categ_id: Option<u64>,
 
     // Currencies
     pub currency_id: Option<u64>,
@@ -157,8 +157,8 @@ pub struct ProductTemplateToOdoo19 {
     pub weight: Option<f32>,
 
     pub sale_ok: bool,
-    pub uom_id: Many2OneRepr,
-    pub uom_po_id: Many2OneRepr,
+    pub uom_id: Option<u64>,
+    pub uom_po_id: Option<u64>,
 
     pub color: u16,
 

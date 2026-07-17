@@ -10,7 +10,7 @@ use crate::{
         // product_product::ProductProductFromOdoo18,
         product_template::ProductTemplateFromOdoo18,
     },
-    utils::{FieldnamesAsStringVec, iterate_chunks::IterateModelFromOdoo18},
+    utils::iterate_chunks::IterateModelFromOdoo18,
 };
 
 #[allow(unused)]

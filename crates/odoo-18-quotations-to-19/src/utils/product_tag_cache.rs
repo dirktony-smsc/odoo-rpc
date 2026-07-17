@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 
 use odoo_api_commons::{Domain, PaginationParam};
-use odoo_json2::base_methods::{
-    create::CreateParam, search::SearchParam, search_read::SearchReadParam,
-};
+use odoo_json2::base_methods::{create::CreateParam, search::SearchParam};
 use odoo_rpc::ModelName;
 
 use crate::{
@@ -12,6 +10,7 @@ use crate::{
     models::product_tag::{ProductTagFromOdoo18, ProductTagToOdoo19},
 };
 
+#[derive(Debug, Default)]
 pub struct ProductTagCache(HashMap<u64, u64>);
 
 pub async fn get_mapping_product_tag_o18_to_o19(
@@ -76,15 +75,14 @@ impl ProductTagCache {
     pub async fn get_mapping(
         &mut self,
         clients: &Clients,
-        partner_id_from_18: u64,
+        tag_id_from_18: u64,
     ) -> Result<u64, error::Error> {
-        match self.0.entry(partner_id_from_18) {
+        match self.0.entry(tag_id_from_18) {
             std::collections::hash_map::Entry::Occupied(occupied_entry) => {
                 Ok(*occupied_entry.get())
             }
             std::collections::hash_map::Entry::Vacant(vacant_entry) => {
-                let new_id =
-                    get_mapping_product_tag_o18_to_o19(clients, partner_id_from_18).await?;
+                let new_id = get_mapping_product_tag_o18_to_o19(clients, tag_id_from_18).await?;
                 Ok(*vacant_entry.insert(new_id))
             }
         }
