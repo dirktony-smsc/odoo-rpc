@@ -1,10 +1,17 @@
-use std::fs;
+use std::{fs, num::NonZero};
 
 use log::info;
-use odoo_api_commons::PaginationParam;
+// use odoo_api_commons::PaginationParam;
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 
-use crate::{client::Clients, models::product_product::ProductProductFromOdoo18};
+use crate::{
+    client::Clients,
+    models::{
+        // product_product::ProductProductFromOdoo18,
+        product_template::ProductTemplateFromOdoo18,
+    },
+    utils::{FieldnamesAsStringVec, iterate_chunks::IterateModelFromOdoo18},
+};
 
 #[allow(unused)]
 async fn get_o18_field_get<T: ModelName>(client: &OdooJsonRPCClient) -> anyhow::Result<()> {
@@ -19,18 +26,19 @@ async fn get_o18_field_get<T: ModelName>(client: &OdooJsonRPCClient) -> anyhow::
 }
 
 pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
-    let a = clients
-        .odoo_18
-        .search_read_with_auto_model_name_and_field_names::<ProductProductFromOdoo18>(
-            Default::default(),
-            PaginationParam {
-                limit: Some(30),
-                ..Default::default()
-            },
-        )
-        .await?;
-    for product in a {
-        info!("{:#?}", product);
+    let mut stream = IterateModelFromOdoo18::new(
+        &clients.odoo_18,
+        ProductTemplateFromOdoo18::NAME.into(),
+        ProductTemplateFromOdoo18::field_names(),
+        Default::default(),
+        NonZero::new(30).unwrap(),
+        0,
+    )
+    .await?;
+    while let Some(maybe_chunck) = stream.next::<ProductTemplateFromOdoo18>().await {
+        for product in maybe_chunck? {
+            info!("{:#?}", product);
+        }
     }
     Ok(())
 }
