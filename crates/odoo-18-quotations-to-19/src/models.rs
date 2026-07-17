@@ -6,6 +6,7 @@ pub mod account_tax;
 pub mod crm_lead;
 pub mod crm_stage;
 pub mod hr_employee;
+pub mod product_product;
 pub mod product_tag;
 pub mod product_template;
 pub mod resource_resource;

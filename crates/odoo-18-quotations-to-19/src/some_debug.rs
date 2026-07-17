@@ -4,7 +4,7 @@ use log::info;
 use odoo_api_commons::PaginationParam;
 use odoo_rpc::{ModelName, OdooJsonRPCClient};
 
-use crate::{client::Clients, models::product_template::ProductTemplateFromOdoo18};
+use crate::{client::Clients, models::product_product::ProductProductFromOdoo18};
 
 #[allow(unused)]
 async fn get_o18_field_get<T: ModelName>(client: &OdooJsonRPCClient) -> anyhow::Result<()> {
@@ -21,8 +21,7 @@ async fn get_o18_field_get<T: ModelName>(client: &OdooJsonRPCClient) -> anyhow::
 pub async fn run_some_dbg(clients: &Clients) -> anyhow::Result<()> {
     let a = clients
         .odoo_18
-        .search_read_with_auto_model_name::<ProductTemplateFromOdoo18>(
-            ProductTemplateFromOdoo18::field_names(),
+        .search_read_with_auto_model_name_and_field_names::<ProductProductFromOdoo18>(
             Default::default(),
             PaginationParam {
                 limit: Some(30),
