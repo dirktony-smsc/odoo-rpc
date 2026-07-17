@@ -65,6 +65,7 @@ pub struct ProductTemplateFromOdoo18 {
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub description_sale: Option<String>,
     #[field_names_as_slice(skip)]
+    #[serde(rename = "type")]
     pub type_: ProductTemplateType,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub combo_ids: Vec<u64>,
