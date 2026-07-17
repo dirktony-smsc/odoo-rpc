@@ -1,7 +1,8 @@
 use derive_more::derive::Display;
-use odoo_api_commons::deserialize_and_default_if_false;
+use odoo_api_commons::{Command, deserialize_and_default_if_false};
 use odoo_rpc::ModelName;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::models::Many2OneRepr;
@@ -108,7 +109,7 @@ pub struct ProductTemplateFromOdoo18 {
     pub default_code: Option<String>,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
-    pub product_document_ids: Vec<String>,
+    pub product_document_ids: Vec<u64>,
 
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub product_tag_ids: Vec<u64>,
@@ -128,4 +129,48 @@ impl ProductTemplateFromOdoo18 {
 
 impl ModelName for ProductTemplateFromOdoo18 {
     const NAME: &'static str = PRODUCT_TEMPLATE_MODEL_NAME;
+}
+
+#[derive(Debug, FieldNamesAsSlice, Serialize)]
+pub struct ProductTemplateToOdoo19 {
+    pub name: String,
+    pub description: Option<String>,
+    pub description_purchase: Option<String>,
+    pub description_sale: Option<String>,
+    #[field_names_as_slice(skip)]
+    #[serde(rename = "type")]
+    pub type_: ProductTemplateType,
+    pub combo_ids: Vec<Command<Value>>,
+    pub service_tracking: ProductServiceTracking,
+    pub categ_id: Many2OneRepr,
+
+    // Currencies
+    pub currency_id: Option<u64>,
+    pub cost_currency_id: Option<u64>,
+
+    // Price
+    pub list_price: Option<f32>,
+    pub standard_price: Option<f32>,
+
+    pub volume: Option<f32>,
+    pub weight: Option<f32>,
+
+    pub sale_ok: bool,
+    pub uom_id: Many2OneRepr,
+    pub uom_po_id: Many2OneRepr,
+
+    pub color: u16,
+
+    pub attribute_line_ids: Vec<Command<Value>>,
+
+    pub valid_product_template_attribute_line_ids: Vec<Command<Value>>,
+
+    // pub product_variant_ids: Vec<Command<_>>,
+    pub barcode: Option<String>,
+    pub default_code: Option<String>,
+
+    pub product_document_ids: Vec<Command<Value>>,
+
+    pub product_tag_ids: Vec<Command<Value>>,
+    // TODO do product properties
 }
