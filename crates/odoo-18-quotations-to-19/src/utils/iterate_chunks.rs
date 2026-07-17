@@ -1,5 +1,6 @@
 use std::num::NonZero;
 
+use log::debug;
 use odoo_api_commons::{Domain, PaginationParam};
 use odoo_rpc::OdooJsonRPCClient;
 use serde::de::DeserializeOwned;
@@ -45,6 +46,10 @@ impl<'a> IterateModelFromOdoo18<'a> {
         }
     }
     pub async fn next<O: DeserializeOwned>(&mut self) -> Option<Result<Vec<O>, error::Error>> {
+        debug!(
+            "current offset = {} ; total count = {}",
+            self.offset, self.count
+        );
         if (self.offset as u64) > self.count {
             return None;
         }
