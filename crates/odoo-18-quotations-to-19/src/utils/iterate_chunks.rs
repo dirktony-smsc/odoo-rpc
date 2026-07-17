@@ -1,6 +1,6 @@
 use std::num::NonZero;
 
-use log::{debug, trace, warn};
+use log::{debug, trace};
 use odoo_api_commons::{Domain, PaginationParam};
 use odoo_rpc::OdooJsonRPCClient;
 use serde::de::DeserializeOwned;
