@@ -143,6 +143,7 @@ impl ResPartner18FieldsTo19PropertiesArg {
             .odoo_18
             .search_count("res.partner".into(), Default::default())
             .await?;
+        // TODO refactor this thing someday to remove the offset/count above
         loop {
             info!("Fetching ({offset} - {limit}) of {count}");
             let ids = clients
