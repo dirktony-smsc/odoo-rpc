@@ -6,21 +6,29 @@ authors.workspace = true
 
 [dependencies]
 odoo-rpc.workspace = true
-tokio = { workspace =true, features = ["rt-multi-thread", "sync", "time", "macros"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "sync", "time", "macros"] }
 struct-field-names-as-array.workspace = true
 anyhow.workspace = true
 dotenvy.workspace = true
 serde = { workspace = true, features = ["derive"] }
 env_logger.workspace = true
 log.workspace = true
-url = {workspace = true, features = ["serde"]}
+url = { workspace = true, features = ["serde"] }
 serde_json.workspace = true
 odoo-json2.workspace = true
-odoo-api-commons = {workspace = true}
+odoo-api-commons = { workspace = true }
 toml.workspace = true
 clap = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
 derive_more = { workspace = true, features = ["display"] }
 regex = { workspace = true }
-reqwest = { workspace = true, features = ["rustls", "zstd", "gzip", "charset", "deflate", "http2", "brotli"] }
+reqwest = { workspace = true, features = [
+  "rustls",
+  "zstd",
+  "gzip",
+  "charset",
+  "deflate",
+  "http2",
+  "brotli",
+] }
 colored = "3"
