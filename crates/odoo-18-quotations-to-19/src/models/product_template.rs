@@ -33,26 +33,26 @@ pub enum ProductTemplateType {
     #[display("Combo")]
     Combo,
 }
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    Deserialize,
-    Serialize,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Display,
-    Default,
-)]
-#[serde(rename_all = "snake_case")]
-pub enum ProductServiceTracking {
-    #[default]
-    #[display("Nothing")]
-    No,
-}
+// #[derive(
+//     Debug,
+//     Clone,
+//     Copy,
+//     Deserialize,
+//     Serialize,
+//     PartialEq,
+//     Eq,
+//     PartialOrd,
+//     Ord,
+//     Hash,
+//     Display,
+//     Default,
+// )]
+// #[serde(rename_all = "snake_case")]
+// pub enum ProductServiceTracking {
+//     #[default]
+//     #[display("Nothing")]
+//     No,
+// }
 
 #[derive(Debug, Deserialize, FieldNamesAsSlice, Serialize)]
 pub struct ProductTemplateFromOdoo18 {
@@ -70,7 +70,8 @@ pub struct ProductTemplateFromOdoo18 {
     pub type_: ProductTemplateType,
     #[serde(deserialize_with = "deserialize_and_default_if_false")]
     pub combo_ids: Vec<u64>,
-    pub service_tracking: ProductServiceTracking,
+    #[serde(deserialize_with = "deserialize_and_default_if_false")]
+    pub service_tracking: Option<String>,
     pub categ_id: Many2OneRepr,
 
     // Currencies
@@ -141,7 +142,7 @@ pub struct ProductTemplateToOdoo19 {
     #[serde(rename = "type")]
     pub type_: ProductTemplateType,
     pub combo_ids: Vec<Command<Value>>,
-    pub service_tracking: ProductServiceTracking,
+    pub service_tracking: Option<String>,
     pub categ_id: Many2OneRepr,
 
     // Currencies
