@@ -1,6 +1,6 @@
 use std::num::NonZero;
 
-use log::debug;
+use log::{debug, trace, warn};
 use odoo_api_commons::{Domain, PaginationParam};
 use odoo_rpc::OdooJsonRPCClient;
 use serde::de::DeserializeOwned;
@@ -46,13 +46,14 @@ impl<'a> IterateModelFromOdoo18<'a> {
         }
     }
     pub async fn next<O: DeserializeOwned>(&mut self) -> Option<Result<Vec<O>, error::Error>> {
+        if (self.offset as u64) > self.count {
+            trace!("Going out of bound...");
+            return None;
+        }
         debug!(
             "current offset = {} ; total count = {}",
             self.offset, self.count
         );
-        if (self.offset as u64) > self.count {
-            return None;
-        }
         let res = match self
             .client
             .search_read::<O>(
