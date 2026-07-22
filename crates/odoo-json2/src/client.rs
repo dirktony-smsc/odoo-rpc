@@ -147,13 +147,15 @@ impl OdooJson2Client {
 
     /// REF: https://www.odoo.com/documentation/19.0/developer/reference/external_api.html#common-service
     pub async fn version(&self) -> Result<crate::version::OdooVersion, crate::error::Error> {
-        Ok(self
+        let base_req = self
             .make_basic_request(Method::GET, "/web/version")?
-            .send()
-            .await?
-            .error_for_status()?
-            .json()
-            .await?)
+            .build()?;
+        for header in base_req.headers() {
+            log::debug!("{:#?}", header)
+        }
+        let resp = self.rq_client.execute(base_req).await?;
+
+        Ok(resp.error_for_status()?.json().await?)
     }
     pub async fn call_model_method<I, O>(
         &self,
