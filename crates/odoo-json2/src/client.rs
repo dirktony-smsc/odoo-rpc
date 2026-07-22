@@ -150,9 +150,9 @@ impl OdooJson2Client {
         let base_req = self
             .make_basic_request(Method::GET, "/web/version")?
             .build()?;
-        for header in base_req.headers() {
-            log::debug!("{:#?}", header)
-        }
+        // for header in base_req.headers() {
+        //     log::debug!("{:#?}", header)
+        // }
         let resp = self.rq_client.execute(base_req).await?;
 
         Ok(resp.error_for_status()?.json().await?)
