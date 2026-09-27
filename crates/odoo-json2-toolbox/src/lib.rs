@@ -7,6 +7,7 @@ use std::{
     fs::File,
     io::{BufReader, Read},
     path::PathBuf,
+    sync::Arc,
 };
 
 #[derive(Debug, Parser)]
@@ -30,12 +31,15 @@ pub async fn run() -> anyhow::Result<()> {
 
     let config: config::ConfigFile = parse_cli_config(&cli)?;
 
-    let client = client::create_client(config)?;
+    let client = Arc::new(client::create_client(config)?);
 
     match cli.command {
         CliCommand::PropertiesToField(properties_to_field_arg) => {
-            commands::properties_to_field::properties_to_field(&client, properties_to_field_arg)
-                .await?;
+            commands::properties_to_field::properties_to_field(
+                client.clone(),
+                properties_to_field_arg,
+            )
+            .await?;
         }
     }
 

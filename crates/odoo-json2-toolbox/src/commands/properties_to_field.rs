@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, str::FromStr, sync::Arc};
 
 use clap::Args;
 use odoo_api_commons::PaginationParam;
@@ -9,6 +9,7 @@ use odoo_json2::{
 use regex::Regex;
 use serde::Deserialize;
 use serde_json::json;
+use tokio::{sync::Semaphore, task::JoinSet};
 
 const SOURCE_PATTERN: &str = r"(?<field>\w+):(?<property_id>\w+)";
 
@@ -36,10 +37,20 @@ pub struct PropertiesToFieldArg {
     /// If not set, all row will be updated.
     #[arg(short, long = "id")]
     ids: Vec<u64>,
+    /// Send write requests in parallel.
+    #[arg(short)]
+    parallel: bool,
+    /// The request in parallel limit.
+    ///
+    /// Require parallel flag `-p` to be active.
+    ///
+    /// Default to 5.
+    #[arg(long)]
+    parallel_limit: Option<usize>,
 }
 
 pub async fn properties_to_field(
-    client: &OdooJson2Client,
+    client: Arc<OdooJson2Client>,
     arg: PropertiesToFieldArg,
 ) -> anyhow::Result<()> {
     let total = {
@@ -55,8 +66,18 @@ pub async fn properties_to_field(
     let mut offset: u64 = 0;
     let limit = arg.limit.unwrap_or(30);
     let source = arg.source.parse::<SourceField>()?;
+
+    let mut maybe_parallel = if arg.parallel {
+        let join_set = JoinSet::<anyhow::Result<()>>::new();
+        Some(Box::new((
+            Arc::new(Semaphore::new(arg.parallel_limit.unwrap_or(5))),
+            join_set,
+        )))
+    } else {
+        None
+    };
     while let Some(batch) = next_batch_data(
-        client,
+        &client,
         &mut offset,
         limit,
         total,
@@ -67,18 +88,31 @@ pub async fn properties_to_field(
     .await?
     {
         for (id, val) in batch {
+            let write_param = WriteParam {
+                ids: vec![id],
+                vals: json!({
+                    (&arg.target): &val.value
+                }),
+            };
+            let model = arg.model.clone();
             log::trace!("writing {:?} to {}:{}", val.value, id, arg.source);
-            client
-                .write(
-                    arg.model.clone(),
-                    WriteParam {
-                        ids: vec![id],
-                        vals: json!({
-                            (&arg.target): &val.value
-                        }),
-                    },
-                )
-                .await?;
+            if let Some((semaphore, join_set)) = maybe_parallel.as_deref_mut() {
+                let semaphore = semaphore.clone();
+                let client = client.clone();
+                join_set.spawn(async move {
+                    let _permit = semaphore.acquire().await?;
+                    client.write(model, write_param).await?;
+                    log::trace!("updated {:?}", id);
+                    Ok(())
+                });
+            } else {
+                client.write(model, write_param).await?;
+            }
+        }
+        if let Some((_, join_set)) = maybe_parallel.as_deref_mut() {
+            while let Some(d) = join_set.join_next().await {
+                d??;
+            }
         }
     }
     Ok(())
