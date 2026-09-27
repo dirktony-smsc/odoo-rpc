@@ -7,7 +7,7 @@ edition.workspace = true
 [dependencies]
 odoo-json2 = { workspace = true }
 odoo-api-commons = { workspace = true }
-clap = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
 anyhow = { workspace = true }
 tokio = { workspace = true }
 reqwest = { workspace = true }
@@ -15,3 +15,5 @@ fern = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 env_logger = { workspace = true }
 log = { workspace = true }
+regex = { workspace = true }
+colored = { workspace = true }

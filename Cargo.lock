@@ -1181,11 +1181,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "colored",
  "env_logger",
  "fern",
  "log",
  "odoo-api-commons",
  "odoo-json2",
+ "regex",
  "reqwest",
  "serde",
  "tokio",
