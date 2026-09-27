@@ -1,10 +1,22 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use clap::Args;
-use odoo_json2::OdooJson2Client;
+use odoo_api_commons::PaginationParam;
+use odoo_json2::{
+    OdooJson2Client,
+    base_methods::{read::ReadParam, search_read::SearchReadParam, write::WriteParam},
+};
 use regex::Regex;
+use serde::Deserialize;
+use serde_json::json;
 
 const SOURCE_PATTERN: &str = r"(?<field>\w+):(?<property_id>\w+)";
+
+#[derive(Debug, Deserialize)]
+struct PropertyRepr {
+    name: String,
+    value: Option<serde_json::Value>,
+}
 
 #[derive(Debug, Args)]
 pub struct PropertiesToFieldArg {
@@ -30,7 +42,111 @@ pub async fn properties_to_field(
     client: &OdooJson2Client,
     arg: PropertiesToFieldArg,
 ) -> anyhow::Result<()> {
+    let total = {
+        if arg.ids.is_empty() {
+            client
+                .search_count(arg.model.clone(), Default::default())
+                .await?
+        } else {
+            arg.ids.len().try_into()?
+        }
+    };
+    log::info!("updating {} values", total);
+    let mut offset: u64 = 0;
+    let limit = arg.limit.unwrap_or(30);
+    let source = arg.source.parse::<SourceField>()?;
+    while let Some(batch) = next_batch_data(
+        client,
+        &mut offset,
+        limit,
+        total,
+        &source,
+        &arg.model,
+        &arg.ids,
+    )
+    .await?
+    {
+        for (id, val) in batch {
+            log::trace!("writing {:?} to {}:{}", val.value, id, arg.source);
+            client
+                .write(
+                    arg.model.clone(),
+                    WriteParam {
+                        ids: vec![id],
+                        vals: json!({
+                            (&arg.target): &val.value
+                        }),
+                    },
+                )
+                .await?;
+        }
+    }
     Ok(())
+}
+
+async fn next_batch_data(
+    client: &OdooJson2Client,
+    offset: &mut u64,
+    limit: u32,
+    total: u64,
+    source: &SourceField,
+    model: &str,
+    ids: &[u64],
+) -> anyhow::Result<Option<Vec<(u64, PropertyRepr)>>> {
+    if *offset > total {
+        return Ok(None);
+    }
+    let values: Vec<HashMap<String, serde_json::Value>> = if ids.is_empty() {
+        client
+            .search_read(
+                model.into(),
+                SearchReadParam {
+                    fields: vec![source.field.clone()],
+                    pagination: Some(PaginationParam {
+                        limit: Some(limit),
+                        offset: Some((*offset).try_into()?),
+                    }),
+                    ..Default::default()
+                },
+            )
+            .await?
+    } else {
+        let ids = ids
+            .iter()
+            .skip((*offset).try_into()?)
+            .take(limit.try_into()?)
+            .copied()
+            .collect::<Vec<_>>();
+        client
+            .read(
+                model.into(),
+                ReadParam {
+                    ids,
+                    fields: vec![source.field.clone()],
+                },
+            )
+            .await?
+    };
+    let res = values
+        .into_iter()
+        .map(|val| -> anyhow::Result<(u64, PropertyRepr)> {
+            let id = val
+                .get("id")
+                .and_then(|v| v.as_u64())
+                .ok_or(anyhow::anyhow!("Cannot get id"))?;
+            let value = Vec::<PropertyRepr>::deserialize(
+                val.get(&source.field)
+                    .ok_or(anyhow::anyhow!("No field named `{}`", source.field))?,
+            )?;
+            let value = value
+                .into_iter()
+                .find(|val| val.name == source.property_id)
+                .ok_or(anyhow::anyhow!("No property named {}", source.property_id))?;
+            Ok((id, value))
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
+    *offset += limit as u64;
+    Ok(Some(res))
 }
 
 fn get_source_partern_regex() -> Result<Regex, regex::Error> {
@@ -75,12 +191,6 @@ impl FromStr for SourceField {
                 .into(),
         })
     }
-}
-
-#[derive(Debug)]
-struct TargetField {
-    model: String,
-    field: String,
 }
 
 #[cfg(test)]

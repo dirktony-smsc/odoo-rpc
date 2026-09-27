@@ -28,3 +28,4 @@ colored = { workspace = true }
 url = { workspace = true, features = ["serde"]}
 toml = { workspace = true }
 thiserror = { workspace = true }
+serde_json = { workspace = true }
