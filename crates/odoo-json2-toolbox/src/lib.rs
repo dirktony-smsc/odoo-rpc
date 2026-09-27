@@ -1,4 +1,5 @@
 mod client;
+pub(crate) mod commands;
 pub(crate) mod config;
 
 use clap::{Parser, Subcommand};
@@ -21,7 +22,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum CliCommand {
-    PropertiesToField,
+    PropertiesToField(commands::properties_to_field::PropertiesToFieldArg),
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -30,6 +31,13 @@ pub async fn run() -> anyhow::Result<()> {
     let config: config::ConfigFile = parse_cli_config(&cli)?;
 
     let client = client::create_client(config)?;
+
+    match cli.command {
+        CliCommand::PropertiesToField(properties_to_field_arg) => {
+            commands::properties_to_field::properties_to_field(&client, properties_to_field_arg)
+                .await?;
+        }
+    }
 
     Ok(())
 }

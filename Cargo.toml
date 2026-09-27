@@ -1,6 +1,6 @@
 [workspace]
 members = ["./crates/*"]
-default-members = ["./crates/odoo-18-quotations-to-19"]
+default-members = ["./crates/odoo-json2-toolbox"]
 resolver = "3"
 
 [workspace.dependencies]
