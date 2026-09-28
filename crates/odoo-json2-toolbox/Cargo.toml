@@ -1,0 +1,31 @@
+[package]
+name = "odoo_json2_toolbox"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+odoo-json2 = { workspace = true }
+odoo-api-commons = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true, features = [
+  "rustls",
+  "zstd",
+  "gzip",
+  "charset",
+  "deflate",
+  "http2",
+  "brotli",
+] }
+fern = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+env_logger = { workspace = true }
+log = { workspace = true }
+regex = { workspace = true }
+colored = { workspace = true }
+url = { workspace = true, features = ["serde"]}
+toml = { workspace = true }
+thiserror = { workspace = true }
+serde_json = { workspace = true }

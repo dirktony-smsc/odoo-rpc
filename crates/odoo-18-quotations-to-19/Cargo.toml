@@ -31,4 +31,4 @@ reqwest = { workspace = true, features = [
   "http2",
   "brotli",
 ] }
-colored = "3"
+colored = { workspace = true }
